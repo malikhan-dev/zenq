@@ -123,7 +123,7 @@ func (query *Queryable[T]) Where(fieldName string, fieldValue any) *Queryable[T]
 			strType = strType.Elem()
 		}
 
-		_, ok := strType.FieldByName(fieldName)
+		field, ok := strType.FieldByName(fieldName)
 
 		newItems := make([]T, 0)
 
@@ -133,7 +133,7 @@ func (query *Queryable[T]) Where(fieldName string, fieldValue any) *Queryable[T]
 
 				v := reflect.ValueOf(val)
 
-				f := v.FieldByName(fieldName)
+				f := v.FieldByIndex(field.Index)
 
 				if f.Interface() == fieldValue {
 					newItems = append(newItems, val)
@@ -188,7 +188,7 @@ func AllOrDefault[T any](items *Queryable[T]) (*[]T, []error) {
 		return &items.Items, items.err
 	} else {
 		var toReturn *[]T
-		items.err = append(items.err, errors.New("index out of range"))
+		items.err = append(items.err, errors.New("No Result."))
 		return toReturn, items.err
 	}
 }
