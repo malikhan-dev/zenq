@@ -181,62 +181,6 @@ func TestChainedSyntax(t *testing.T) {
 
 }
 
-func TestCopyTo(t *testing.T) {
-	var dest *[]ComplexObjectToSearch
-
-	dest = CopyToSlice(items)
-
-	fmt.Println("=============================================")
-	fmt.Println("printing values:")
-
-	fmt.Println(items)
-
-	fmt.Println(dest)
-
-	fmt.Println("=============================================")
-
-	fmt.Println("modifying source slice")
-
-	dest = RemoveFirstByPredicate(*dest, func(search ComplexObjectToSearch) bool {
-		return search.Name == "Jane"
-	})
-
-	fmt.Println("=============================================")
-	fmt.Println("printing values:")
-
-	fmt.Println(dest)
-
-	fmt.Println(items)
-}
-
-func TestToSlice(t *testing.T) {
-
-	var m map[int]ComplexObjectToSearch
-
-	m = make(map[int]ComplexObjectToSearch, 2)
-
-	m[1] = ComplexObjectToSearch{
-		Name: "joe",
-		Age:  20,
-		Id:   1,
-		Flag: false,
-	}
-	m[2] = ComplexObjectToSearch{
-		Name: "john",
-		Age:  27,
-		Id:   2,
-		Flag: true,
-	}
-
-	var dest *[]ComplexObjectToSearch
-
-	dest = ToSlice(m)
-
-	fmt.Println(*dest)
-
-	fmt.Println(m)
-}
-
 func TestAny(t *testing.T) {
 
 	result := Any(items, func(item ComplexObjectToSearch) bool {
@@ -262,13 +206,12 @@ func TestAny(t *testing.T) {
 }
 
 func Test_Should_Return_Errors(t *testing.T) {
-	result, err := First(From(items).Where("NNNNAAAMMMEEE", 12).Where("FLLLAAAGGGG", "trvue"))
+	result, err := FirstOrDefault(From(items).Where("NNNNAAAMMMEEE", 12).Where("FLLLAAAGGGG", "trvue"))
 	if err == nil {
 		t.Error("Error Collector Malfunction")
 	} else {
-		if result != nil {
-			t.Error("Error Collector Malfunction")
-		}
+
+		fmt.Println(*result)
 
 		if len(err) < 3 {
 			t.Error("Error Collector Malfunction")
@@ -277,18 +220,52 @@ func Test_Should_Return_Errors(t *testing.T) {
 		fmt.Println(err)
 	}
 
-	result2, err2 := First(From(items).Where("Name", 12).Where("Flag", true))
+	result2, err2 := FirstOrDefault(From(items).Where("Name", 12).Where("Flag", true))
 	if err2 == nil {
 		t.Error("Error Collector Malfunction")
 	} else {
 		fmt.Println(result2, err2)
 	}
 
-	result3, err3 := First(From(items).Where("Name", "Jane").Where("Flag", true))
+	result3, err3 := FirstOrDefault(From(items).Where("Name", "Jane").Where("Flag", true))
 	if err3 != nil {
 		t.Error("Error Collector Malfunction")
 	} else {
 		fmt.Println(*result3, err3)
+	}
+
+}
+
+func BenchmarkAllOrDefault(b *testing.B) {
+
+	fmt.Println("Loading Test Data... Please Wait")
+	randFlag := false
+	for i := 0; i < 50000000; i++ {
+
+		items = append(items, ComplexObjectToSearch{
+			Name: "Jane",
+			Flag: randFlag,
+			Id:   i,
+			Age:  i,
+		})
+		randFlag = !randFlag
+	}
+
+	fmt.Println("Searching In Progress...", len(items), " records...")
+
+	res, err := AllOrDefault(From(items).Where("Flag", true).Filter(func(item ComplexObjectToSearch) bool {
+		return item.Id > 200000
+	}))
+
+	if err != nil {
+		b.Error(err)
+
+	}
+
+	if Any(*res, func(item ComplexObjectToSearch) bool {
+		return !item.Flag
+	}) {
+		b.Error("Wrong Data Fetched")
 	}
 
 }
