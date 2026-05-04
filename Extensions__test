@@ -153,14 +153,40 @@ func TestRemoveAllByPredicate(t *testing.T) {
 
 }
 
+func TestChainedSyntax(t *testing.T) {
+
+	result := First(From(items).Where("Name", "John").Where("Flag", true))
+	result2 := All(From(items).Where("Name", "John").Where("Flag", true))
+	result3 := AllOrDefault(From(items).Where("Flag", true))
+	result4 := FirstOrDefault(From(items).Where("Name", "John").Where("Flag", 2))
+
+	fmt.Println(*result)
+	fmt.Println(*result2)
+	fmt.Println(*result3)
+	fmt.Println(*result4)
+
+}
 func TestFilterByPredicate(t *testing.T) {
-	var newItems *[]ComplexObjectToSearch
 
-	newItems = Filter(items, func(search ComplexObjectToSearch) bool {
+	newItems := First(Where(items, func(search ComplexObjectToSearch) bool {
 		return search.Flag == true
-	})
+	}))
 
-	fmt.Println(newItems)
+	newItems2 := FirstOrDefault(Query(*WhereEx(items, "Name", "John"), "Flag", true))
+
+	newItems3 := FirstOrDefault(Query(*Query(*WhereEx(items, "Name", "John"), "Flag", false), "name", "jack"))
+
+	fmt.Println(*newItems)
+
+	fmt.Println(&newItems)
+
+	fmt.Println(*newItems2)
+
+	fmt.Println(&newItems2)
+
+	fmt.Println(*newItems3)
+
+	fmt.Println(&newItems3)
 }
 
 func TestFilterFirstByPredicate(t *testing.T) {
@@ -253,12 +279,15 @@ func TestAny(t *testing.T) {
 
 func TestPredicate(t *testing.T) {
 
-	result := Predicate(items, "Name", "John")
-	result2 := Predicate(items, "Flag", true)
-	result3 := Predicate(items, "Flag", false)
-	result4 := First(Predicate(items, "Flag", true))
+	result := WhereEx(items, "Name", "John")
+	result2 := WhereEx(items, "Flag", true)
+	result3 := WhereEx(items, "Flag", false)
+	/*	result4 := FirstOrDefault(Predicate(items, "Flag", "x"))
+		result5 := First(Predicate(items, "Flag", "x"))
+	*/
 	fmt.Println(result)
 	fmt.Println(result2)
 	fmt.Println(result3)
-	fmt.Println(result4)
+	/*	fmt.Println(result4)
+		fmt.Println(result5)*/
 }
