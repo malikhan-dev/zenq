@@ -14,6 +14,8 @@ type ComplexObjectToSearch struct {
 
 var items []ComplexObjectToSearch
 
+const Heavy_Load = true
+
 func init() {
 
 	items = []ComplexObjectToSearch{
@@ -43,6 +45,23 @@ func init() {
 		},
 	}
 
+	if Heavy_Load {
+		LoadLargeData()
+	}
+
+}
+func LoadLargeData() {
+	randFlag := false
+	for i := 0; i < 50000000; i++ {
+
+		items = append(items, ComplexObjectToSearch{
+			Name: "Jane",
+			Flag: randFlag,
+			Id:   i,
+			Age:  i,
+		})
+		randFlag = !randFlag
+	}
 }
 
 func TestFindAllByPredicate(t *testing.T) {
@@ -238,20 +257,7 @@ func Test_Should_Return_Errors(t *testing.T) {
 
 func BenchmarkAllOrDefault(b *testing.B) {
 
-	fmt.Println("Loading Test Data... Please Wait")
-	randFlag := false
-	for i := 0; i < 50000000; i++ {
-
-		items = append(items, ComplexObjectToSearch{
-			Name: "Jane",
-			Flag: randFlag,
-			Id:   i,
-			Age:  i,
-		})
-		randFlag = !randFlag
-	}
-
-	fmt.Println("Searching In Progress...", len(items), " records...")
+	// nust set the heavy_load const to true
 
 	res, err := AllOrDefault(From(items).Where("Flag", true).Filter(func(item ComplexObjectToSearch) bool {
 		return item.Id > 200000
