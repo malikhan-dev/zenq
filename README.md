@@ -13,3 +13,23 @@ Open Source
 Fast Development
 
 Integrated Set Of Tools
+
+
+Our Benchmark Shows The Following Lines Of Code Took About 8 seconds To Run In A Slice Of 50,000,000 records. And Results Were As Expected. It Sounds Reasonable.
+
+
+
+res, err := AllOrDefault(From(items).Where("Flag", true).Filter(func(item ComplexObjectToSearch) bool {
+		return item.Id > 200000
+	}))
+
+	if err != nil {
+		b.Error(err)
+
+	}
+
+	if Any(*res, func(item ComplexObjectToSearch) bool {
+		return !item.Flag
+	}) {
+		b.Error("Wrong Data Fetched")
+	}
