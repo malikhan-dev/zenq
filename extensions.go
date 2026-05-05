@@ -155,7 +155,33 @@ func (query *Queryable[T]) Where(fieldName string, fieldValue any) *Queryable[T]
 	return fnc(query)
 }
 
-func FirstOrDefault[T any](items *Queryable[T]) (*T, []error) {
+func (items *Queryable[T]) All() (*[]T, []error) {
+	if len(items.Items) > 0 {
+		return &items.Items, items.err
+	} else {
+		panic(errors.New("Cant Perform All() On Empty Slice"))
+	}
+}
+
+func (items *Queryable[T]) First() (*T, []error) {
+	if len(items.Items) > 0 {
+		return &items.Items[0], items.err
+	} else {
+		panic(errors.New("Cant Perform First() On Empty Slice"))
+	}
+}
+
+func (items *Queryable[T]) AllOrDefault() (*[]T, []error) {
+	if len(items.Items) > 0 {
+		return &items.Items, items.err
+	} else {
+		var toReturn *[]T
+		items.err = append(items.err, errors.New("No Result."))
+		return toReturn, items.err
+	}
+}
+
+func (items *Queryable[T]) FirstOrDefault() (*T, []error) {
 
 	var result T
 
@@ -165,30 +191,4 @@ func FirstOrDefault[T any](items *Queryable[T]) (*T, []error) {
 		items.err = append(items.err, errors.New("No items found"))
 	}
 	return &result, items.err
-}
-
-func All[T any](items *Queryable[T]) (*[]T, []error) {
-	if len(items.Items) > 0 {
-		return &items.Items, items.err
-	} else {
-		panic(errors.New("Cant Perform All() On Empty Slice"))
-	}
-}
-
-func First[T any](items *Queryable[T]) (*T, []error) {
-	if len(items.Items) > 0 {
-		return &items.Items[0], items.err
-	} else {
-		panic(errors.New("Cant Perform First() On Empty Slice"))
-	}
-}
-
-func AllOrDefault[T any](items *Queryable[T]) (*[]T, []error) {
-	if len(items.Items) > 0 {
-		return &items.Items, items.err
-	} else {
-		var toReturn *[]T
-		items.err = append(items.err, errors.New("No Result."))
-		return toReturn, items.err
-	}
 }
