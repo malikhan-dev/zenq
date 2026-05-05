@@ -109,52 +109,46 @@ func Any[T any](Items []T, Condition func(T) bool) bool {
 
 func (query *Queryable[T]) Where(fieldName string, fieldValue any) *Queryable[T] {
 
-	fnc := func(t *Queryable[T]) *Queryable[T] {
+	var Out Queryable[T]
 
-		var Out Queryable[T]
+	strType := reflect.TypeFor[T]()
 
-		strType := reflect.TypeFor[T]()
-
-		if strType.Kind() != reflect.Struct {
-			Out.err = append(Out.err, errors.New("Expected a struct"))
-		}
-
-		if strType.Kind() == reflect.Ptr {
-			strType = strType.Elem()
-		}
-
-		field, ok := strType.FieldByName(fieldName)
-
-		newItems := make([]T, 0)
-
-		if ok {
-
-			for _, val := range query.Items {
-
-				v := reflect.ValueOf(val)
-
-				f := v.FieldByIndex(field.Index)
-
-				if f.Interface() == fieldValue {
-					newItems = append(newItems, val)
-				}
-			}
-
-		} else {
-			Out.err = append(Out.err, errors.New(fmt.Sprintf("Invalid Property Name: %s", fieldName)))
-		}
-		for _, val := range t.err {
-
-			Out.err = append(Out.err, val)
-		}
-
-		Out.Items = newItems
-		return &Out
+	if strType.Kind() != reflect.Struct {
+		Out.err = append(Out.err, errors.New("Expected a struct"))
 	}
 
-	return fnc(query)
-}
+	if strType.Kind() == reflect.Ptr {
+		strType = strType.Elem()
+	}
 
+	field, ok := strType.FieldByName(fieldName)
+
+	newItems := make([]T, 0)
+
+	if ok {
+
+		for _, val := range query.Items {
+
+			v := reflect.ValueOf(val)
+
+			f := v.FieldByIndex(field.Index)
+
+			if f.Interface() == fieldValue {
+				newItems = append(newItems, val)
+			}
+		}
+
+	} else {
+		Out.err = append(Out.err, errors.New(fmt.Sprintf("Invalid Property Name: %s", fieldName)))
+	}
+	for _, val := range query.err {
+
+		Out.err = append(Out.err, val)
+	}
+
+	Out.Items = newItems
+	return &Out
+}
 func (items *Queryable[T]) All() (*[]T, []error) {
 	if len(items.Items) > 0 {
 		return &items.Items, items.err
