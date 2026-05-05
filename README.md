@@ -29,9 +29,9 @@ Our Benchmark Shows The Following Lines Of Code Took About 4.8 seconds To Run In
 The Benchmark Included In The Test File
 
 
-	res, err := AllOrDefault(From(items).Where("Flag", true).Filter(func(item ComplexObjectToSearch) bool {
+	res, err := From(items).Where("Flag", true).Filter(func(item ComplexObjectToSearch) bool {
 		return item.Id > 200000
-	}))
+	}).AllOrDefault()
 
 	if err != nil {
 		b.Error(err)
