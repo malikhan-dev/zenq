@@ -4,15 +4,27 @@ As Of Now Lingo Is A Set Of Functions or Extensions That Can Help You Querying D
 
 
 
-Rich Syntax
+- Rich Syntax
 
-Ease Of Use
+- Ease Of Use
 
-Open Source
+- Open Source
 
-Fast Development
+- Fast Development
 
-Integrated Set Of Tools
+- Integrated Set Of Tools
+
+************************************************************************
+	
+	res2, err2 := From(UserList).Filter(func(user Users) bool {
+
+		return Any(user.Addr, func(address Address) bool {
+			return address.City == "Karaj"
+		})
+
+	}).AllOrDefault().Collect()
+	
+************************************************************************
 
 
 Our Benchmark Shows The Following Lines Of Code Took About 4.8 seconds To Run In A Slice Of 50,000,000 records. And The Data Validates. The Performance Looks Solid.
@@ -31,7 +43,7 @@ The Benchmark Included In The Test File
 
 	res, err := From(items).Where("Flag", true).Filter(func(item ComplexObjectToSearch) bool {
 		return item.Id > 200000
-	}).AllOrDefault()
+	}).AllOrDefault().Collect()
 
 	if err != nil {
 		b.Error(err)
@@ -43,26 +55,6 @@ The Benchmark Included In The Test File
 	}) {
 		b.Error("Wrong Data Fetched")
 	}
-
-
-
-
-
-(V1.3.2) Or Higher (Breaking Change)
-
----Introducing Collectors---
-
-After A Chained Operation Like Where(etc).AllOrDefault(), If We Want To Have The Result And Unwrap Queryable To A Tuple Of []T, and []err... We Use Collect And CollectRange functions. Its Important To Know That After Calling Collect The Result Is Not A Pointer Anymore. And Methods Like All And AllOrDefault Returns Queryable From Now On.
-
-
-
-	res, err := From(items).Filter(func(item ComplexObjectToSearch) bool {
-		return item.Id > 200000
-	}).AllOrDefault().CollectRange(200)
-
-	res2, err2 := From(items).Filter(func(item ComplexObjectToSearch) bool {
-		return item.Id > 200000
-	}).AllOrDefault().Collect()
 
 
 
