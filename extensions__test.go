@@ -357,3 +357,33 @@ func TestCollectRangeAndValidateData(t *testing.T) {
 	}
 
 }
+
+
+func TestIssueWithUnsignedTypes(t *testing.T) {
+
+	type Example struct {
+		Id   uint32
+		Name string
+	}
+
+	var Examples []Example
+
+	Examples = append(Examples, Example{
+		Id:   1,
+		Name: "Sam",
+	})
+
+	Examples = append(Examples, Example{
+		Id:   2,
+		Name: "Dean",
+	})
+
+	res, err := From(Examples).Where("Id", uint32(2)).AllOrDefault().Collect()
+	if err != nil {
+		t.Error(err)
+	} else {
+		fmt.Println(res)
+	}
+
+}
+
