@@ -7,7 +7,7 @@ The library provides both reflection-based dynamic querying and type-safe predic
 
 
 ### 📚Documentations Available In The Wiki Section.
- https://github.com/yourusername/lingo
+ https://github.com/malikhan-dev/lingo
 
 
 
