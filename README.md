@@ -4,21 +4,20 @@ As Of Now Lingo Is A Set Of Functions or Extensions That Can Help You Querying D
 
 
 ### 📚Documentations Available In The Wiki Section.
- (https://github.com/yourusername/lingo)
+ https://github.com/yourusername/lingo
 
 
 
-https://github.com/malikhan-dev/lingo/wiki
 
-- Rich Syntax
+### Rich Syntax
 
-- Ease Of Use
+### Ease Of Use
 
-- Open Source
+### Open Source
 
-- Fast Development
+### Fast Development
 
-- Integrated Set Of Tools
+### Integrated Set Of Tools
 
 ************************************************************************
 	
