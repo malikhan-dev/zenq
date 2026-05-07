@@ -33,7 +33,7 @@ Benchmarks Shows The Following Lines Of Code Took About 4.8 seconds To Run In A 
 	SSD
 	Linux Ubuntu
     8 Seconds < 1.3.0
-	4.8 Seconds On Latest Version
+	4.5 Seconds On Latest Version
 	
 The Benchmark Included In The Test File
 
