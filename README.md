@@ -4,7 +4,7 @@ As Of Now Lingo Is A Set Of Functions or Extensions That Can Help You Querying D
 
 
 ### 📚Documentations Available In The Wiki Section.
- [Lingo Documentations](https://github.com/yourusername/lingo)
+ (https://github.com/yourusername/lingo)
 
 
 
