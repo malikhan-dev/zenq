@@ -24,7 +24,7 @@ As Of Now Lingo Is A Set Of Functions or Extensions That Can Help You Querying D
 
 	
 
-Benchmarks Shows The Following Lines Of Code Took About 4.8 seconds To Run In A Slice Of 50,000,000 records. And The Data Validates. The Performance Looks Solid.
+### Benchmarks Shows The Following Lines Of Code Took About 4.8 seconds To Run In A Slice Of 50,000,000 records. And The Data Validates. The Performance Looks Solid.
 	
 	Benchmark Pc Specs:
 	Laptop 
@@ -35,7 +35,7 @@ Benchmarks Shows The Following Lines Of Code Took About 4.8 seconds To Run In A 
     8 Seconds < 1.3.0
 	4.5 Seconds On Latest Version
 	
-The Benchmark Included In The Test File
+📊 The Benchmark Included In The Test File
 
 <img width="1311" height="177" alt="Screenshot from 2026-05-07 15-57-29" src="https://github.com/user-attachments/assets/fd711d1c-9f5a-4ece-b14e-27ecea2e9fe3" />
 
