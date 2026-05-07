@@ -30,18 +30,5 @@ As Of Now Lingo Is A Set Of Functions or Extensions That Can Help You Querying D
 <img width="1633" height="256" alt="Screenshot from 2026-05-07 22-19-57" src="https://github.com/user-attachments/assets/5b36b58a-4b6e-422c-927a-0e4cb52bc60d" />
 
 
-	
-	Benchmark Pc Specs:
-	Laptop 
-	Intel Core I7 12700
-	16Gb Of Ram
-	SSD
-	Linux Ubuntu
-    8 Seconds < 1.3.0
-	4.5 Seconds On Latest Version
-	
- The Benchmark Included In The Test File
-
-
 <img width="1178" height="308" alt="Lingo6" src="https://github.com/user-attachments/assets/f2c58a67-0f55-4a3f-a7be-1bccb7e1dd68" />
 
