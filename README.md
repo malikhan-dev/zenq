@@ -1,6 +1,7 @@
 What Is Lingo?
 
-As Of Now Lingo Is A Set Of Functions or Extensions That Can Help You Querying Data from any Structures. Something Like Linq In C# Or Streams In Java. Detailed Documentation Available In Wiki Section. This Project Is An Open Source Project Under No Guarantees, Though We Use Test Driven Approach To Ensure Stable Releases. 
+Lingo is a data querying framework designed to work with a wide variety of structures. Inspired by LINQ in C# and Streams in Java, it provides an expressive and flexible approach to processing data in Go. For more detailed guidance and examples, please refer to the Wiki section.
+
 
 
 ### 📚Documentations Available In The Wiki Section.
