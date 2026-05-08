@@ -256,8 +256,8 @@ func BenchmarkAllOrDefault(b *testing.B) {
 		return item.Id > 200000
 	}).AllOrDefault()
 
-	if len(res.err) > 0 && res.err != nil {
-		b.Error(res.err)
+	if len(res.Err) > 0 && res.Err != nil {
+		b.Error(res.Err)
 
 	}
 
@@ -451,4 +451,78 @@ func TestNestedSearch(t *testing.T) {
 	fmt.Println(err2)
 
 	fmt.Println("================================")
+}
+
+func TestGroupBy(t *testing.T) {
+
+	type SysUser struct {
+		Username    string
+		Id          int
+		Flag        bool
+		AuthorityId uint32
+	}
+
+	users := []SysUser{
+		{
+			Username:    "removed user",
+			Id:          -1,
+			Flag:        true,
+			AuthorityId: 1,
+		},
+		{
+			Username:    "malikhan",
+			Id:          1,
+			Flag:        true,
+			AuthorityId: 1,
+		},
+		{
+			Username:    "Jackson",
+			Id:          2,
+			Flag:        true,
+			AuthorityId: 1,
+		},
+		{
+			Username:    "Miller",
+			Id:          3,
+			Flag:        false,
+			AuthorityId: 14,
+		},
+		{
+			Username:    "Alvarez",
+			Id:          2,
+			AuthorityId: 14,
+			Flag:        false,
+		},
+	}
+
+	res, err := GroupBy[bool, SysUser](From(users), "Flag").Collect()
+
+	res2, err2 := GroupBy[uint32, SysUser](From(users).Filter(func(user SysUser) bool {
+
+		return user.Id > 0
+
+	}), "AuthorityId").Collect()
+
+	fmt.Println(res2)
+
+	if err2 != nil || err != nil {
+		t.Error(err2)
+		t.Error(err)
+	}
+
+	if len(res2[14]) != 2 {
+		fmt.Println(res2[14])
+		t.Error("Grouping Failed")
+	}
+
+	if len(res2[1]) != 2 {
+		fmt.Println(res2[1])
+		t.Error("Grouping Failed")
+	}
+
+	if len(res[true]) != 3 || len(res[false]) != 2 {
+		fmt.Println(res[true])
+		fmt.Println(res[false])
+		t.Error("Grouping Failed")
+	}
 }
