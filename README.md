@@ -1,4 +1,5 @@
-What Is Lingo?
+# Lingo: expressive, type-safe, and dynamic querying for Go
+
 
 Lingo is a data querying framework designed to work with a wide variety of structures. Inspired by LINQ in C# and Streams in Java, it provides an expressive and flexible approach to processing data in Go. For more detailed guidance and examples, please refer to the Wiki section.
 
