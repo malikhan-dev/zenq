@@ -14,16 +14,27 @@ The library provides both reflection-based dynamic querying and type-safe predic
 
 ### Rich Syntax
 
+<img width="1287" height="465" alt="Screenshot from 2026-05-06 21-03-58" src="https://github.com/user-attachments/assets/6a681b6e-892e-4e72-9c67-eb7ee491dd53" />
+
+
+
 ### Ease Of Use
 
+<img width="776" height="145" alt="Screenshot from 2026-05-08 19-30-44" src="https://github.com/user-attachments/assets/a3fbb302-e525-48e4-9b3f-b6d8b8717720" />
+
+
 ### Open Source
-
-### Fast Development
-
-### Integrated Set Of Tools
+<img width="823" height="78" alt="Screenshot from 2026-05-08 19-55-58" src="https://github.com/user-attachments/assets/905c53f5-40ec-46c5-bfce-f2b07dd2a853" />
 
 
-<img width="1287" height="465" alt="Screenshot from 2026-05-06 21-03-58" src="https://github.com/user-attachments/assets/6a681b6e-892e-4e72-9c67-eb7ee491dd53" />
+
+### Fast And Integrated Development
+
+
+
+
+
+
 
 	
 
