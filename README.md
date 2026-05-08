@@ -158,7 +158,7 @@ After calling a collector, the result is no longer a pointer to `Queryable[T]`.
 
 		return item.Id > 200000
 
-	}).CollectRange(500)
+	}).AllOrDefault().CollectRange(500)
 
 ```
 ---
