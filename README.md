@@ -77,7 +77,12 @@ It wraps:
 
 Collectors unwrap this type into concrete results.
 
-<img width="480" height="270" alt="Screenshot from 2026-05-07 11-06-07" src="https://github.com/user-attachments/assets/5a8c20c2-9f87-46d5-a1c6-93703da09de8" />
+```Go
+type Queryable[T any] struct {
+	Items []T
+	Err   []OpError
+}
+```
 
 ---
 
@@ -98,14 +103,16 @@ It accepts a slice of `[]T` and returns a pointer to `Queryable[T]`.
 
 This function modifies the current `Queryable[T]` and returns the same pointer for further chaining.
 
-<img width="466" height="42" alt="Screenshot from 2026-05-07 11-21-06" src="https://github.com/user-attachments/assets/573c4717-86ba-4bbf-b7d3-78872d3fa02c" />
+```Go
+	_, err2 := From(items).Where("Name", 12).Where("Flag", true).FirstOrDefault().Collect()
+```
 
 **Important:** the field value must be exactly the same type as the struct field.  
 For example, if the field type is `uint32`, you must pass `uint32(2)` instead of `2`.
 
-<img width="377" height="40" alt="Screenshot from 2026-05-07 11-24-48" src="https://github.com/user-attachments/assets/224ac952-4f3f-4fda-a480-099c6e2ef3d9" />
-
----
+```Go
+	_, err := From(Examples).Where("Id", uint32(2)).AllOrDefault().Collect()
+```
 
 ### `First()` and `FirstOrDefault()`
 
@@ -157,7 +164,19 @@ Now suppose you want to find all users where a specific city exists in their add
 
 Lingo makes this kind of nested search much easier to express.
 
-<img width="1357" height="480" alt="Lingo8" src="https://github.com/user-attachments/assets/5d24d6c4-b998-4d62-b09a-6a945d138b8c" />
+
+
+```go
+
+results, errors := From(UserList).Filter(func(user Users) bool {
+
+		return Any(user.Addr, func(address Address) bool {
+			return address.City == "Karaj"
+		})
+
+	}).AllOrDefault().Collect()
+
+```
 
 By reading this example, you can get a good sense of how the core functions work together in real use cases.
 
@@ -174,9 +193,14 @@ It returns `true` if at least one item matches the condition, otherwise `false`.
 
 This is especially useful for nested queries.
 
-<img width="694" height="81" alt="Screenshot from 2026-05-07 12-00-16" src="https://github.com/user-attachments/assets/182516c6-dc0e-4a45-bc3d-c3d38058c4b2" />
+```go
 
----
+	result := Any(items, func(item ComplexObjectToSearch) bool {
+		return item.Flag
+	})
+
+```
+
 
 ## Notes
 
