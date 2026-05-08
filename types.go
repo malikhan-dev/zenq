@@ -4,7 +4,12 @@ import "errors"
 
 type Queryable[T any] struct {
 	Items []T
-	err   []OpError
+	Err   []OpError
+}
+
+type GroupedQueryable[K comparable, T any] struct {
+	Items map[K][]T
+	Err   []OpError
 }
 
 type OpError struct {
@@ -29,4 +34,5 @@ var OpErrors = map[int]string{
 	3: "unsupported type. a struct expected.",
 	4: "cant query on empty slice.",
 	5: "index is out of range.",
+	6: "specified type is not comparable.",
 }
