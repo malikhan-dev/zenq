@@ -146,11 +146,11 @@ After a chained operation such as:
 lingo.From(data).Where(...).AllOrDefault()
 ```
 
-you can use collectors to unwrap the `Queryable[T]` result into concrete values.
+you can use collectors to unwrap the `Queryable[T]` result into concrete values. 
 
 - `Collect()` returns the full result set and errors
 - `CollectRange(cnt)` returns a limited number of items based on the `cnt` argument, along with errors
-
+-  CollectChan(buffersize) collect data and errors using go chan for your large data . available at v1.4.0
 After calling a collector, the result is no longer a pointer to `Queryable[T]`.
 
 ```go
@@ -159,6 +159,18 @@ After calling a collector, the result is no longer a pointer to `Queryable[T]`.
 		return item.Id > 200000
 
 	}).AllOrDefault().CollectRange(500)
+
+```
+
+
+``` go
+
+for item := range From(items).Where("Flag", true).AllOrDefault().CollectChan(256) {
+
+		if item.Err.Code != 0 {
+			t.Error(item.Err)
+		}
+	}
 
 ```
 ---
@@ -204,6 +216,30 @@ This is especially useful for nested queries.
 	result := Any(items, func(item ComplexObjectToSearch) bool {
 		return item.Flag
 	})
+
+```
+
+
+
+## `GroupBy()`
+
+`GroupBy()` accepts:
+
+- a queryable
+- a string for property name
+
+groups the data based on specific key.
+
+```go
+
+	result, err := GroupBy[bool, SysUser](From(users), "Flag").Collect()
+
+	result, err2 := GroupBy[uint32, SysUser](From(users).Filter(func(user SysUser) bool {
+
+		return user.Id > 0
+
+	}), "AuthorityId").Collect()
+
 
 ```
 
