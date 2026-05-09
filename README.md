@@ -184,7 +184,8 @@ type CollectStream[T any] struct {
 }
 
 
-* if Err.Code = 0 that means there is no error. The CollectChan() returns datas and errors in a Single type, which is CollectStream.
+* if Err.Code = 0 that means there is no error.
+* The CollectChan() returns datas and errors in a Single type, which is CollectStream.
 ```
 
 ## Nested Search Example
