@@ -175,7 +175,7 @@ changed to PipeStream Since v1.4.1
 ```
 ---
 
-CollectChan(size) returns a new type named CollectStream.
+PipeStream(size) returns a new type named CollectStream.
 
 ``` go
 
