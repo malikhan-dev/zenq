@@ -1,6 +1,7 @@
 package lingo
 
 import (
+	"context"
 	"reflect"
 )
 
@@ -146,6 +147,76 @@ func (query *Queryable[T]) Where(fieldName string, fieldValue any) *Queryable[T]
 
 	Out.Items = newItems
 	return &Out
+}
+
+func (query *Queryable[T]) WhereChan(fieldName string, fieldValue any) chan<- T {
+
+	channel := make(chan T)
+
+	go func() {
+		defer close(channel)
+
+		strType := reflect.TypeFor[T]()
+
+		if strType.Kind() == reflect.Ptr {
+			strType = strType.Elem()
+		}
+
+		if strType.Kind() != reflect.Struct {
+			return
+		}
+
+		targetField, ok := strType.FieldByName(fieldName)
+		if !ok {
+			return
+		}
+
+		for _, val := range query.Items {
+
+			rowValue := reflect.ValueOf(val)
+
+			if rowValue.Kind() == reflect.Ptr {
+				rowValue = rowValue.Elem()
+			}
+
+			rowField := rowValue.FieldByIndex(targetField.Index)
+
+			if rowField.Interface() == fieldValue {
+				channel <- val
+			}
+		}
+	}()
+
+	return channel
+}
+
+func FilterStream[T any](ctx context.Context, in <-chan T, predicate func(T) bool) <-chan T {
+	out := make(chan T, 4096)
+
+	go func() {
+		defer close(out)
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case v, ok := <-in:
+				if !ok {
+					return
+				}
+
+				if predicate(v) {
+					select {
+					case <-ctx.Done():
+						return
+					case out <- v:
+					}
+				}
+			}
+		}
+	}()
+
+	return out
 }
 
 func (query *Queryable[T]) All() *Queryable[T] {
