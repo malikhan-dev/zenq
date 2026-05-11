@@ -1,8 +1,8 @@
 # Lingo
 
-**Expressive data querying for Go — inspired by LINQ, designed for flexibility, and built with generics.**
+**Expressive data querying for Go — stream your data efficiently with Lingo Stream Api — inspired by LINQ, designed for flexibility, and built with generics.**
 
-Lingo is a data querying framework for Go that helps you filter, search, validate, and process data in a fluent and readable way. It is inspired by LINQ in C# and Streams in Java, while staying practical for Go developers.
+Lingo is a data querying framework for Go that helps you filter, search, validate, process and lately stream your data in a fluent and readable way. It is inspired by LINQ in C# and Streams in Java, while staying practical for Go developers.
 
 Lingo supports two querying styles:
 
@@ -12,6 +12,14 @@ Lingo supports two querying styles:
 Whether you want convenience, readability, or performance, Lingo gives you a clean way to work with data.
 
 ---
+
+
+## Introducing lingo stream api's (v1.4.3)
+
+Useful pipelines available for your needs to stream your data.
+
+<img width="721" height="676" alt="Screenshot from 2026-05-11 21-08-37" src="https://github.com/user-attachments/assets/ecc015ab-f905-4891-839f-bededf93c5e5" />
+
 
 ## Installation
 
@@ -268,6 +276,37 @@ groups the data based on specific key.
 
 
 ```
+
+
+
+## Lingo Stream Api
+
+``` go
+	queryable := lingo.From(items)
+
+	mappedStream := streams.MapStream[ComplexObjectToSearch, SimplerType](ctx,
+		streams.Throttle(ctx,
+			streams.FilterStream(ctx, buffer_size,
+				streams.FromQueryable[ComplexObjectToSearch](ctx, buffer_size, *queryable),
+				func(item ComplexObjectToSearch) bool {
+
+					return item.Id > 0
+
+				}), 0), func(search ComplexObjectToSearch) SimplerType {
+
+			return SimplerType{
+				Enabled: search.Flag,
+				Id:      search.Id,
+				Name:    search.Name,
+			}
+		})
+
+	for v := range mappedStream {
+    }
+
+
+```
+
 
 
 ## Notes
