@@ -1,6 +1,7 @@
 package lingo
 
 import (
+	"context"
 	"testing"
 )
 
@@ -51,7 +52,7 @@ func init() {
 }
 func LoadLargeData() {
 	randFlag := false
-	for i := 0; i < 2000000; i++ {
+	for i := 0; i < 50000000; i++ {
 
 		items = append(items, ComplexObjectToSearch{
 			Name: "Jane",
@@ -223,6 +224,28 @@ func BenchmarkAllOrDefaultCollector(b *testing.B) {
 		b.Error("Wrong Data Fetched")
 	}
 
+}
+
+func BenchmarkAllOrDefaultChanCollector(b *testing.B) {
+
+	// must set the heavy_load const to true
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	defer cancel()
+
+	count := 0
+
+	for range FilterStream(ctx, BeginStream(ctx, items), func(item ComplexObjectToSearch) bool {
+		return item.Flag && item.Id > 200000
+	}) {
+
+		count++
+		if count == 10 {
+			cancel()
+			break
+		}
+	}
 }
 
 func BenchmarkAllOrDefault(b *testing.B) {
@@ -489,7 +512,7 @@ func TestGroupBy(t *testing.T) {
 
 func TestPipeStream(t *testing.T) {
 
-	for item := range From(items).Where("Flag", true).AllOrDefault().PipeStream(10) {
+	for item := range From(items).Where("Flag", true).AllOrDefault().Pipe(10) {
 
 		if item.Err.Code != 0 {
 			t.Error(item.Err)

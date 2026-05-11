@@ -1,7 +1,6 @@
 package lingo
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -10,27 +9,10 @@ func TestCopyTo(t *testing.T) {
 
 	dest = DeepCopy(items)
 
-	fmt.Println("=============================================")
-	fmt.Println("printing values:")
-
-	fmt.Println(items)
-
-	fmt.Println(dest)
-
-	fmt.Println("=============================================")
-
-	fmt.Println("modifying source slice")
-
 	dest = RemoveFirstByPredicate(*dest, func(search ComplexObjectToSearch) bool {
 		return search.Name == "Jane"
 	})
 
-	fmt.Println("=============================================")
-	fmt.Println("printing values:")
-
-	fmt.Println(dest)
-
-	fmt.Println(items)
 }
 
 func TestToSlice(t *testing.T) {
@@ -52,11 +34,6 @@ func TestToSlice(t *testing.T) {
 		Flag: true,
 	}
 
-	var dest *[]ComplexObjectToSearch
+	_ = ToSlice(m)
 
-	dest = ToSlice(m)
-
-	fmt.Println(*dest)
-
-	fmt.Println(m)
 }

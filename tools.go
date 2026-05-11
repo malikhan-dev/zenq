@@ -29,3 +29,9 @@ func ToSlice[k int | float64 | float32 | int16 | int32 | uint | int64, v any](it
 	return &destinationSlice
 
 }
+
+func Page(allItems int, pageSize int) int {
+
+	return int((allItems + pageSize - 1) / pageSize)
+
+}
