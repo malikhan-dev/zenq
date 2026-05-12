@@ -277,9 +277,74 @@ groups the data based on specific key.
 
 ```
 
+# Lingo Stream API
+
+When dealing with large datasets, it is not always recommended to collect everything into memory using the traditional `Queryable` execution model.
+
+Lingo provides a Stream API that allows data to be processed incrementally as it flows through a pipeline.
+
+There are three adapters available to initiate a stream:
+
+---
+
+## FromQueryable
+
+Creates a stream from a `Queryable`.
+
+---
+
+## FromData
+
+Creates a stream from in-memory data.
+
+---
+
+## FromChannel
+
+Creates a stream from an existing Go channel.
+
+---
+
+# Stream Pipelines
+
+Once a stream is created, it can be processed using different pipeline stages.
+
+## FilterStream
+
+Works similarly to `Where()` or `Filter()`, but operates on streamed data.
+
+---
+
+## Throttle
+
+Adds a delay between streamed items.
+
+Examples:
+- `100 * time.Millisecond`
+- `0` for no delay
+
+---
+
+## MapStream
+
+Transforms streamed data into another type.
+
+---
+
+# Stream Cancellation
+
+Streams respect `context.Context` cancellation to:
+- prevent goroutine leaks
+- support early termination
+- properly manage pipeline lifecycle
+
+Example:
+```go
+ctx, cancel := context.WithCancel(context.Background())
+defer cancel()
 
 
-## Lingo Stream Api
+
 
 ``` go
 	queryable := lingo.From(items)
