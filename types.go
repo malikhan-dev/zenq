@@ -37,7 +37,6 @@ func ErrFactory(Code int, MetaData string) OpError {
 	}
 }
 
-
 var OpErrors = map[int]string{
 	1: "unable to fetch result based on given criteria.",
 	2: "property does not exist on type.",

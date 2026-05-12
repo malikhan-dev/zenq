@@ -1,9 +1,31 @@
 package streams
 
 import (
-	lingo "github.com/malikhan-dev/lingo"
 	"context"
+
+	lingo "github.com/malikhan-dev/lingo"
 )
+
+func CompileFromQueryable[T any](items []T) *CompiledQueryable[T] {
+
+	var result CompiledQueryable[T]
+
+	result.Operators = make([]LingoOperator[T], 0)
+
+	result.Items = &items
+
+	var operator LingoOperator[T]
+
+	operator.OperatorType = 1
+
+	operator.MetaData = OpData[T]{
+		MetaData: "FromQueryable",
+		Function: func(item T) bool {
+			return true
+		},
+	}
+	return &result
+}
 
 func FromData[T any](ctx context.Context, BufferSize int, items []T) <-chan T {
 	out := make(chan T, BufferSize)

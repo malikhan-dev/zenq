@@ -1,7 +1,6 @@
 package lingo
 
 import (
-	"context"
 	"fmt"
 )
 
@@ -34,24 +33,6 @@ func (query *Queryable[T]) Pipe(BufferSize int) <-chan CollectStream[T] {
 
 	}()
 	return ch
-}
-
-func BeginStream[T any](ctx context.Context, items []T) <-chan T {
-
-	channel := make(chan T, 4096)
-
-	go func() {
-		defer close(channel)
-		for _, v := range items {
-			select {
-			case <-ctx.Done():
-				return
-			case channel <- v:
-			}
-
-		}
-	}()
-	return channel
 }
 
 func (query *GroupedQueryable[K, T]) PipeStream(StreamBufferSize int) <-chan CollectGroupStream[K, T] {
