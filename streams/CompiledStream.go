@@ -1,7 +1,7 @@
 package streams
 
 import (
-	"time"
+	contracts "Lingo/src/contracts"
 )
 
 type OperatorType int
@@ -12,30 +12,14 @@ const (
 	ThrottleQueryable = 3
 )
 
-func (currentOps *CompiledQueryable[T]) Filter(filter func(item T) bool) *CompiledQueryable[T] {
+func Filter[T any](currentOps *contracts.CompiledQueryable[T], filter func(item T) bool) *contracts.CompiledQueryable[T] {
 
-	currentOps.Operators = append(currentOps.Operators, LingoOperator[T]{
-		MetaData: OpData[T]{
+	currentOps.Operators = append(currentOps.Operators, contracts.LingoOperator[T]{
+		MetaData: contracts.OpData[T]{
 			MetaData: "FFilter",
 			Function: filter,
 		},
 		OperatorType: 2,
-	})
-
-	return currentOps
-}
-
-func (currentOps *CompiledQueryable[T]) Throttle(duration time.Duration) *CompiledQueryable[T] {
-
-	currentOps.Operators = append(currentOps.Operators, LingoOperator[T]{
-		MetaData: OpData[T]{
-			MetaData: "0",
-			Function: func(item T) bool {
-				time.Sleep(duration)
-				return true
-			},
-		},
-		OperatorType: 3,
 	})
 
 	return currentOps
