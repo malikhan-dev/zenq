@@ -1,8 +1,12 @@
 # Lingo
 
 **Expressive data querying for Go — stream your data efficiently with Lingo Stream Api — inspired by LINQ, designed for flexibility, and built with generics.**
+### GitHub Achievements
 
 [![Starstruck](https://img.shields.io/badge/GitHub-Starstruck-yellow?style=for-the-badge&logo=github)](https://github.com/users/malikhan-dev/achievements/starstruck)
+
+[![Pull Shark](https://img.shields.io/badge/GitHub-Pull%20Shark-blue?style=for-the-badge&logo=github)](https://github.com/users/malikhan-dev/achievements/pull-shark)
+
 ![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?style=for-the-badge&logo=go)
 ![License](https://img.shields.io/github/license/malikhan-dev/lingo?style=for-the-badge)
 
