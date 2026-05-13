@@ -1,7 +1,7 @@
 package streams
 
 import (
-	"https://github.com/malikhan-dev/lingo/collections"
+	"github.com/malikhan-dev/lingo/collections"
 	"context"
 	"fmt"
 	"testing"
