@@ -1,7 +1,7 @@
 package streams
 
 import (
-	"https://github.com/malikhan-dev/lingo/contracts"
+	"github.com/malikhan-dev/lingo/contracts"
 	"context"
 )
 
