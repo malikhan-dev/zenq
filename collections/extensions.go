@@ -1,10 +1,9 @@
-package lingo
+package collections
 
 import (
 	"context"
 	"reflect"
 )
-
 
 func FindByPredicate[T any](items []T, predicate func(T) bool) *[]T {
 
@@ -19,6 +18,15 @@ func FindByPredicate[T any](items []T, predicate func(T) bool) *[]T {
 
 }
 
+func WWhereAll[T any](items *Queryable[T], predicate func(T) bool) bool {
+
+	for _, v := range items.Items {
+		if predicate(v) {
+			return true
+		}
+	}
+	return false
+}
 func FindFirstByPredicate[T any](items []T, predicate func(T) bool) *T {
 
 	var result T
@@ -72,7 +80,7 @@ func RemoveByPredicate[T any](items []T, predicate func(T) bool) *[]T {
 	return &result
 }
 
-func (query *Queryable[T]) Filter(predicate func(T) bool) *Queryable[T] {
+func FFilter[T any](query *Queryable[T], predicate func(T) bool) *Queryable[T] {
 
 	var result []T
 	result = make([]T, 0)
@@ -88,7 +96,7 @@ func (query *Queryable[T]) Filter(predicate func(T) bool) *Queryable[T] {
 	}
 }
 
-func From[T any](items []T) *Queryable[T] {
+func FFrom[T any](items []T) *Queryable[T] {
 
 	return &Queryable[T]{
 		Items: items,
@@ -96,7 +104,7 @@ func From[T any](items []T) *Queryable[T] {
 	}
 }
 
-func Any[T any](Items []T, Condition func(T) bool) bool {
+func AAny[T any](Items []T, Condition func(T) bool) bool {
 
 	for _, v := range Items {
 
@@ -107,7 +115,7 @@ func Any[T any](Items []T, Condition func(T) bool) bool {
 	return false
 }
 
-func (query *Queryable[T]) Where(fieldName string, fieldValue any) *Queryable[T] {
+func WWhere[T any](query *Queryable[T], fieldName string, fieldValue any) *Queryable[T] {
 
 	var Out Queryable[T]
 
@@ -150,7 +158,7 @@ func (query *Queryable[T]) Where(fieldName string, fieldValue any) *Queryable[T]
 	return &Out
 }
 
-func (query *Queryable[T]) WhereChan(fieldName string, fieldValue any) chan<- T {
+func WhereChan[T any](query *Queryable[T], fieldName string, fieldValue any) chan<- T {
 
 	channel := make(chan T)
 
@@ -220,7 +228,7 @@ func FilterStream[T any](ctx context.Context, in <-chan T, predicate func(T) boo
 	return out
 }
 
-func (query *Queryable[T]) All() *Queryable[T] {
+func AAll[T any](query *Queryable[T]) *Queryable[T] {
 	if len(query.Items) > 0 {
 		return query
 	} else {
@@ -228,7 +236,7 @@ func (query *Queryable[T]) All() *Queryable[T] {
 	}
 }
 
-func (query *Queryable[T]) First() *Queryable[T] {
+func FFirst[T any](query *Queryable[T]) *Queryable[T] {
 	if len(query.Items) > 0 {
 		data := query.Items[0]
 		query.Items = make([]T, 0)
@@ -239,7 +247,7 @@ func (query *Queryable[T]) First() *Queryable[T] {
 	}
 }
 
-func (query *Queryable[T]) AllOrDefault() *Queryable[T] {
+func AAllOrDefault[T any](query *Queryable[T]) *Queryable[T] {
 	if len(query.Items) > 0 {
 		return query
 	} else {
@@ -248,7 +256,7 @@ func (query *Queryable[T]) AllOrDefault() *Queryable[T] {
 	}
 }
 
-func (query *Queryable[T]) FirstOrDefault() *Queryable[T] {
+func FFirstOrDefault[T any](query *Queryable[T]) *Queryable[T] {
 
 	if len(query.Items) > 0 {
 		data := query.Items[0]
@@ -261,7 +269,7 @@ func (query *Queryable[T]) FirstOrDefault() *Queryable[T] {
 	return query
 }
 
-func GroupBy[K comparable, T any](query *Queryable[T], fieldName string) *GroupedQueryable[K, T] {
+func GGroupBy[K comparable, T any](query *Queryable[T], fieldName string) *GroupedQueryable[K, T] {
 
 	var result GroupedQueryable[K, T]
 
@@ -322,10 +330,10 @@ func GroupBy[K comparable, T any](query *Queryable[T], fieldName string) *Groupe
 
 }
 
-func (query *Queryable[T]) Count() int {
+func CCount[T any](query *Queryable[T]) int {
 	return len(query.Items)
 }
 
-func (query *Queryable[T]) ErrCount() int {
+func EErrCount[T any](query *Queryable[T]) int {
 	return len(query.Err)
 }

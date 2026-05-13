@@ -1,124 +1,112 @@
 package streams
 
-import "context"
+import (
+	contracts "https://github.com/malikhan-dev/lingo/contracts"
+	"context"
+)
 
-func StreamWithMapping[T any, V any](currentOps *CompiledQueryable[T], mapper func(items T) V, ctx context.Context) <-chan V {
+func CompileStreamWithMapping[T any, V any](ctx context.Context, currentOps *contracts.CompiledQueryable[T], mapper func(items T) V) <-chan V {
 
-	channel := make(chan V)
+	var channel = make(chan V)
 
 	go func() {
 		defer close(channel)
 
 		for _, v := range *currentOps.Items {
-
-			keep := true
-
+			Keep := true
 			select {
 			case <-ctx.Done():
-				keep = false
 				return
 			default:
 			}
 			for _, op := range currentOps.Operators {
 
-				select {
-				case <-ctx.Done():
-					keep = false
-					return
-				default:
-				}
-
 				switch op.OperatorType {
+
+				case BuildQueryable:
+					if !op.MetaData.Function(v) {
+						Keep = false
+						break
+					}
 
 				case FilterQueryable:
 
 					if !op.MetaData.Function(v) {
-						keep = false
+						Keep = false
 						break
 					}
 
 				case ThrottleQueryable:
 
-					op.MetaData.Function(v)
+					if op.MetaData.MetaData != "0" {
+						if op.MetaData.Function(v) {
+
+						}
+					}
+
 				}
 
-				if !keep {
-					break
-				}
+			}
+			if Keep {
+				channel <- mapper(v)
 			}
 
-			if keep {
-
-				select {
-				case <-ctx.Done():
-					keep = false
-					break
-
-				case channel <- mapper(v):
-				}
-			}
 		}
+
 	}()
 
 	return channel
 }
 
-func (currentOps *CompiledQueryable[T]) Stream(ctx context.Context) <-chan T {
+func CompileStream[T any](ctx context.Context, currentOps *contracts.CompiledQueryable[T]) <-chan T {
 
-	channel := make(chan T)
+	var channel = make(chan T)
 
 	go func() {
 		defer close(channel)
 
 		for _, v := range *currentOps.Items {
-
-			keep := true
-
+			Keep := true
 			select {
 			case <-ctx.Done():
-				keep = false
 				return
 			default:
+
 			}
 			for _, op := range currentOps.Operators {
 
-				select {
-				case <-ctx.Done():
-					keep = false
-					return
-				default:
-				}
-
 				switch op.OperatorType {
+
+				case BuildQueryable:
+					if !op.MetaData.Function(v) {
+						Keep = false
+						break
+					}
 
 				case FilterQueryable:
 
 					if !op.MetaData.Function(v) {
-						keep = false
+						Keep = false
 						break
 					}
 
 				case ThrottleQueryable:
 
-					op.MetaData.Function(v)
+					if op.MetaData.MetaData != "0" {
+						if op.MetaData.Function(v) {
+
+						}
+					}
+
 				}
 
-				if !keep {
-					break
-				}
+			}
+			if Keep {
+				channel <- v
 			}
 
-			if keep {
-
-				select {
-				case <-ctx.Done():
-					keep = false
-					break
-
-				case channel <- v:
-				}
-			}
 		}
+
 	}()
 
 	return channel

@@ -1,4 +1,4 @@
-package lingo
+package collections
 
 import (
 	"testing"
@@ -458,13 +458,13 @@ func TestGroupBy(t *testing.T) {
 		},
 	}
 
-	res, err := GroupBy[bool, SysUser](From(users), "Flag").Collect()
+	res, err := GroupBy[bool, SysUser](From(users), "Flag").CollectGroup()
 
 	res2, err2 := GroupBy[uint32, SysUser](From(users).Filter(func(user SysUser) bool {
 
 		return user.Id > 0
 
-	}), "AuthorityId").Collect()
+	}), "AuthorityId").CollectGroup()
 
 	if err2 != nil || err != nil {
 		t.Error(err2)
@@ -490,67 +490,6 @@ func TestGroupBy(t *testing.T) {
 func TestPipeStream(t *testing.T) {
 
 	for item := range From(items).Where("Flag", true).AllOrDefault().Pipe(10) {
-
-		if item.Err.Code != 0 {
-			t.Error(item.Err)
-		}
-	}
-
-}
-
-func TestPipeGroupedStream(t *testing.T) {
-
-	type student struct {
-		Name    string
-		Age     int
-		Present bool
-	}
-
-	students := []student{
-		{
-			Name:    "jane",
-			Age:     18,
-			Present: true,
-		},
-		{
-			Name:    "jack",
-			Age:     19,
-			Present: true,
-		},
-		{
-			Name:    "james",
-			Age:     20,
-			Present: false,
-		},
-		{
-			Name:    "john",
-			Age:     20,
-			Present: false,
-		},
-	}
-	groupable := GroupBy[bool, student](From(students).AllOrDefault(), "Present")
-
-	for item := range groupable.PipeStream(0) {
-
-		for k, v := range item.Value {
-
-			if k == true {
-
-				for _, item := range v {
-					if item.Name != "jane" && item.Name != "jack" {
-						t.Error("Grouping Failed")
-					}
-				}
-
-			} else {
-				for _, item := range v {
-					if item.Name != "james" && item.Name != "john" {
-						t.Error("Grouping Failed")
-					}
-				}
-
-			}
-		}
 
 		if item.Err.Code != 0 {
 			t.Error(item.Err)

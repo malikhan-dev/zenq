@@ -1,24 +1,23 @@
 package streams
 
 import (
+	"https://github.com/malikhan-dev/lingo/contracts"
 	"context"
-
-	lingo "github.com/malikhan-dev/lingo"
 )
 
-func CompileFromQueryable[T any](items []T) *CompiledQueryable[T] {
+func CompileFromQueryable[T any](items []T) *contracts.CompiledQueryable[T] {
 
-	var result CompiledQueryable[T]
+	var result contracts.CompiledQueryable[T]
 
-	result.Operators = make([]LingoOperator[T], 0)
+	result.Operators = make([]contracts.LingoOperator[T], 0)
 
 	result.Items = &items
 
-	var operator LingoOperator[T]
+	var operator contracts.LingoOperator[T]
 
 	operator.OperatorType = 1
 
-	operator.MetaData = OpData[T]{
+	operator.MetaData = contracts.OpData[T]{
 		MetaData: "FromQueryable",
 		Function: func(item T) bool {
 			return true
@@ -60,25 +59,5 @@ func FromChannel[T any](ctx context.Context, BufferSize int, items <-chan T) <-c
 		}
 	}()
 
-	return out
-}
-
-func FromQueryable[T any](ctx context.Context, BufferSize int, items lingo.Queryable[T]) <-chan T {
-	out := make(chan T, BufferSize)
-
-	go func() {
-		defer close(out)
-
-		for _, v := range items.Items {
-
-			select {
-			case <-ctx.Done():
-				return
-			case out <- v:
-			}
-
-		}
-
-	}()
 	return out
 }

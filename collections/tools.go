@@ -1,4 +1,4 @@
-package lingo
+package collections
 
 func DeepCopy[T any](items []T) *[]T {
 

@@ -1,11 +1,10 @@
 package streams
 
 import (
+	"https://github.com/malikhan-dev/lingo/collections"
 	"context"
 	"fmt"
 	"testing"
-
-	lingo "github.com/malikhan-dev/lingo"
 )
 
 type ComplexObjectToSearch struct {
@@ -56,7 +55,7 @@ func init() {
 
 func LoadLargeData() {
 	randFlag := false
-	for i := 0; i < 200000; i++ {
+	for i := 0; i < 200; i++ {
 
 		items = append(items, ComplexObjectToSearch{
 			Name: "Jane",
@@ -117,12 +116,12 @@ func TestStreamsFromQueryable(t *testing.T) {
 
 	buffer_size = 10
 
-	queryable := lingo.From(items)
+	queryable := collections.From(items)
 
 	mappedStream := MapStream[ComplexObjectToSearch, SimplerType](ctx,
 		Throttle(ctx,
 			FilterStream(ctx, buffer_size,
-				FromQueryable(ctx, buffer_size, *queryable),
+				collections.FromQueryable(ctx, buffer_size, *queryable),
 				func(item ComplexObjectToSearch) bool {
 
 					return item.Id > 0

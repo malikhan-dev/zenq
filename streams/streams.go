@@ -84,7 +84,7 @@ func Throttle[T any](ctx context.Context, in <-chan T, duration time.Duration) <
 				case <-ctx.Done():
 					return
 				case out <- v:
-					time.Sleep(duration * time.Millisecond)
+					time.Sleep(duration)
 				}
 
 			}
@@ -92,5 +92,4 @@ func Throttle[T any](ctx context.Context, in <-chan T, duration time.Duration) <
 	}()
 
 	return out
-
 }
