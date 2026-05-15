@@ -3,7 +3,6 @@ package Thor
 import (
 	"github.com/malikhan-dev/lingo/collections"
 	"github.com/malikhan-dev/lingo/contracts"
-	"reflect"
 )
 
 // Hi My Name Is Thor. Im The Collections Query Engine Of Lingo
@@ -66,7 +65,7 @@ func (op *CollectionCompiledQueryable[T]) Any(function func(T) bool) *AssertComp
 	}
 }
 
-func Group[K comparable, T any](op *CollectionCompiledQueryable[T], propertyName string) *GroupCompiledQueryable[K, T] {
+func Group[K comparable, T any](op *CollectionCompiledQueryable[T], locator func(T) K) *GroupCompiledQueryable[K, T] {
 
 	op.Queryable.Operators = append(op.Queryable.Operators, contracts.LingoOperator[T]{
 		OperatorType: GroupCollection,
@@ -78,8 +77,8 @@ func Group[K comparable, T any](op *CollectionCompiledQueryable[T], propertyName
 		},
 	})
 	return &GroupCompiledQueryable[K, T]{
-		GroupPropertyName: propertyName,
-		Queryable:         op.Queryable,
+		Queryable:   op.Queryable,
+		PropLocator: locator,
 	}
 }
 
@@ -150,17 +149,11 @@ func Collect[K comparable, T any](op *GroupCompiledQueryable[K, T]) *collections
 
 	result.Items = make(map[K][]T)
 
-	strType := reflect.TypeFor[T]()
-
-	fieldName := op.GroupPropertyName
-
-	targetField, ok := strType.FieldByName(fieldName)
-
-	if !ok {
-		return &result
-	}
+	var LocatedKey K
 
 	for _, item := range *op.Queryable.Items {
+
+		LocatedKey = op.PropLocator(item)
 
 		keep := true
 
@@ -185,26 +178,26 @@ func Collect[K comparable, T any](op *GroupCompiledQueryable[K, T]) *collections
 		if !keep {
 			continue
 		}
+		/*
+			v := reflect.ValueOf(item)
 
-		v := reflect.ValueOf(item)
+			if v.Kind() == reflect.Ptr {
+				v = v.Elem()
+			}
 
-		if v.Kind() == reflect.Ptr {
-			v = v.Elem()
-		}
+			field := v.FieldByIndex(targetField.Index)
 
-		field := v.FieldByIndex(targetField.Index)
+			if !field.IsValid() {
+				continue
+			}
 
-		if !field.IsValid() {
-			continue
-		}
+			key, ok := field.Interface().(K)
 
-		key, ok := field.Interface().(K)
+			if !ok {
+				continue
+			}*/
 
-		if !ok {
-			continue
-		}
-
-		result.Items[key] = append(result.Items[key], item)
+		result.Items[LocatedKey] = append(result.Items[LocatedKey], item)
 	}
 
 	return &result
