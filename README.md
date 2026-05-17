@@ -15,7 +15,7 @@ This library was written and designed by Mohammadreza Malikhan. The source code 
 
 # Intro
 
-Lingo is a DSL (Domain Specific Language) for Go that helps you filter, search, validate, process, and stream your data in a fluent and readable way. It is inspired by LINQ in C# and Streams in Java, while staying practical for Go developers. 
+Lingo is a DSL (Domain Specific Language) for Go that helps you filter, search, validate, process, and stream your data in a fluent and readable way. It is inspired by LINQ in C# and Streams in Java, while staying practical for Go developers. make sure you review the benchmarks section at the end of this document. 
 
 At its core, Lingo is a modular library. Currently, it has two modules: **Collections** and **Streams**. 
 
@@ -502,6 +502,15 @@ result2 := collections.From(result).Any(func(search ComplexObjectToSearch) bool 
 }).Assert()
 
 ```
+
+## benchmark
+
+in a slice of 50,000,000 users it took less than 2 seconds just to filter them and around 4 seconds to filter then group the items.
+
+
+<img width="1138" height="893" alt="bench2" src="https://github.com/user-attachments/assets/644db764-425e-4a70-97b3-1b649ca9864f" />
+<img width="1133" height="772" alt="bench1" src="https://github.com/user-attachments/assets/6dca9160-e0ed-4c04-bcb2-8ea519a7f27d" />
+
 
 ## Project Status
 
