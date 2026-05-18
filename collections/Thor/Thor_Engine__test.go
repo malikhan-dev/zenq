@@ -70,3 +70,75 @@ func TestGroupByNew(t *testing.T) {
 	fmt.Println("==========================================================")
 
 }
+
+func TestValidFilter(t *testing.T) {
+
+	type Student struct {
+		Name     string
+		Age      int
+		Id       int
+		Pressent bool
+	}
+
+	var students []Student
+
+	students = append(students, Student{
+		Name:     "Jane",
+		Age:      20,
+		Id:       1,
+		Pressent: true,
+	})
+
+	students = append(students, Student{
+		Name:     "John",
+		Age:      22,
+		Id:       2,
+		Pressent: false,
+	})
+
+	results := From(students).Where(func(search Student) bool {
+		return search.Name == "Jane" && search.Pressent == false
+	}).Collect()
+
+	if len(results) > 0 {
+		t.Error("result should be empty")
+	}
+
+	result2 := From(students).Any(func(search Student) bool {
+		return search.Name == "Jane" && search.Pressent == true
+	}).Assert()
+
+	if !result2 {
+		t.Error("student should exists")
+	}
+
+	GroupResult := Collect(Group[bool, Student](From(students).Where(func(student Student) bool {
+		return student.Age > 0
+	}), func(student Student) bool {
+		return student.Pressent
+	}))
+
+	if len(GroupResult.Items) != 2 {
+		t.Error("Group Failed")
+	}
+
+	if len(GroupResult.Items[true]) != 1 {
+		t.Error("Group Failed")
+	}
+
+	if len(GroupResult.Items[false]) != 1 {
+		t.Error("Group Failed")
+	}
+
+	var jane = GroupResult.Items[true][0]
+
+	if jane.Name != "Jane" {
+		t.Error("Group Failed")
+	}
+
+	var john = GroupResult.Items[false][0]
+
+	if john.Name != "John" {
+		t.Error("Group Failed")
+	}
+}
