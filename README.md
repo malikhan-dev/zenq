@@ -87,9 +87,6 @@ go mod tidy
 
 ## Default Collections API
 
-
-
-
 import path
 
 ``` go
@@ -267,6 +264,85 @@ result, err2 := GroupBy[uint32, SysUser](From(users).Filter(func(user SysUser) b
 }), "AuthorityId").Collect()
 
 ```
+
+
+
+# Thor Engine APIs For Collection Processing
+
+A faster, more Go-idiomatic alternative to the default collections API is to use the **Thor** engine to query your data. The Thor engine uses the operator fusion pattern to ensure maximum speed and a single execution unit.
+
+
+import path
+``` go
+collections "github.com/malikhan-dev/zenq/collections/Thor"
+```
+
+### Core Concepts:
+1. **`CollectionCompiledQueryable[T]`**: After each chain of operation, we use this type as a contract (much like `Queryable` in the default collections API).
+2. **`AssertCompiledQueryable[T]`**: In our query chains, if we want to assert the result like the `Any()` operator, this is the output type.
+3. **`GroupCompiledQueryable[K, T]`**: After a grouping operation, the returning type is `GroupCompiledQueryable`.
+
+All three types nest `CompiledQueryable[T]` inside them. `CompiledQueryable` represents the result of the operation in the `Items` property and the list of operators.
+
+``` go
+type CompiledQueryable[T any] struct {
+    Operators []zenqOperator[T]
+    Items     *[]T
+}
+```
+
+Thor Engine APIs are as follows:
+
+- **`From[T any]`**: Accepts a slice of `[]T` and returns a `*CollectionCompiledQueryable[T]` to initiate a query chain.
+- **`Where[T any]`**: Accepts a function `func(T) bool` as an argument, filters the collection, and returns a `*CollectionCompiledQueryable[T]`.
+- **`Collect()`**: Collects the result and returns the `CollectionCompiledQueryable[T]` which holds the data.
+
+**Example:**
+
+``` go
+result := collections.From(items).Where(func(search ComplexObjectToSearch) bool {
+    return search.Name == "Jane" && search.Flag == false
+}).Collect()
+
+result2 := collections.From(result).Any(func(search ComplexObjectToSearch) bool {
+    return (search.Name != "Jane") || (search.Flag != false)
+}).Assert()
+
+if result2 {
+    t.Error("result should be false")
+}
+```
+
+- **`Group` and `Collect`**: The `Group` function expects a `CompiledQueryable[T]` as an argument and a Key Selector function. For collecting the result of a group, we can use the `collections.Collect()` function.
+
+A grouping example: filtering users whose age is greater than 20 and grouping them by their presence:
+
+``` go
+res := collections.Collect(
+    collections.Group[bool, ComplexObjectToSearch](
+        collections.From(items).Where(func(search ComplexObjectToSearch) bool {
+            return search.Age > 20
+        }),
+        func(item ComplexObjectToSearch) bool {
+            return item.Flag
+        },
+    ),
+)
+
+fmt.Println(res.Items[false][1])
+fmt.Println(res.Items[true][1])
+
+```
+
+- **`Assert()`**: Asserts the collection on a given criteria.
+
+``` go
+result2 := collections.From(result).Any(func(search ComplexObjectToSearch) bool {
+    return (search.Name != "Jane") || (search.Flag != false)
+}).Assert()
+
+```
+
 
 # zenq Stream API
 
@@ -453,81 +529,25 @@ for v := range mappedStream {
 ```
 
 
-# Thor Engine APIs For Collection Processing
-
-A faster, more Go-idiomatic alternative to the default collections API is to use the **Thor** engine to query your data. The Thor engine uses the operator fusion pattern to ensure maximum speed and a single execution unit.
-
-
-import path
-``` go
-collections "github.com/malikhan-dev/zenq/collections/Thor"
-```
-
-### Core Concepts:
-1. **`CollectionCompiledQueryable[T]`**: After each chain of operation, we use this type as a contract (much like `Queryable` in the default collections API).
-2. **`AssertCompiledQueryable[T]`**: In our query chains, if we want to assert the result like the `Any()` operator, this is the output type.
-3. **`GroupCompiledQueryable[K, T]`**: After a grouping operation, the returning type is `GroupCompiledQueryable`.
-
-All three types nest `CompiledQueryable[T]` inside them. `CompiledQueryable` represents the result of the operation in the `Items` property and the list of operators.
+# Compiled Streams
+the main difference between streams and compiled streams is that the compiled streams starts the streaming from a single execution unit. while the streams pass around the data after each pipelines. in the following example we initiate a compilable stream using the method CompileFromQueryable, which accepts a slice, then we used filter pipeline to filter it, after that we called CompileStream which is our execution unit, we can remove the throttle pipeline if we dont need any delays.
 
 ``` go
-type CompiledQueryable[T any] struct {
-    Operators []zenqOperator[T]
-    Items     *[]T
-}
-```
 
-Thor Engine APIs are as follows:
+	ctx, cancel := context.WithCancel(context.Background())
 
-- **`From[T any]`**: Accepts a slice of `[]T` and returns a `*CollectionCompiledQueryable[T]` to initiate a query chain.
-- **`Where[T any]`**: Accepts a function `func(T) bool` as an argument, filters the collection, and returns a `*CollectionCompiledQueryable[T]`.
-- **`Collect()`**: Collects the result and returns the `CollectionCompiledQueryable[T]` which holds the data.
+	defer cancel()
 
-**Example:**
-
-``` go
-result := collections.From(items).Where(func(search ComplexObjectToSearch) bool {
-    return search.Name == "Jane" && search.Flag == false
-}).Collect()
-
-result2 := collections.From(result).Any(func(search ComplexObjectToSearch) bool {
-    return (search.Name != "Jane") || (search.Flag != false)
-}).Assert()
-
-if result2 {
-    t.Error("result should be false")
-}
-```
-
-- **`Group` and `Collect`**: The `Group` function expects a `CompiledQueryable[T]` as an argument and a Key Selector function. For collecting the result of a group, we can use the `collections.Collect()` function.
-
-A grouping example: filtering users whose age is greater than 20 and grouping them by their presence:
-
-``` go
-res := collections.Collect(
-    collections.Group[bool, ComplexObjectToSearch](
-        collections.From(items).Where(func(search ComplexObjectToSearch) bool {
-            return search.Age > 20
-        }),
-        func(item ComplexObjectToSearch) bool {
-            return item.Flag
-        },
-    ),
-)
-
-fmt.Println(res.Items[false][1])
-fmt.Println(res.Items[true][1])
+	for i := range Throttle(ctx, CompileStream(ctx, Filter(CompileFromQueryable(items), func(student ComplexObjectToSearch) bool {
+		return !student.Flag
+	})), time.Duration(250*time.Millisecond)) {
+		fmt.Println(i)
+	}
 
 ```
 
-- **`Assert()`**: Asserts the collection on a given criteria.
 
-``` go
-result2 := collections.From(result).Any(func(search ComplexObjectToSearch) bool {
-    return (search.Name != "Jane") || (search.Flag != false)
-}).Assert()
 
-```
 
 ## benchmark
 
@@ -536,6 +556,8 @@ in a slice of 50,000,000 users it took less than 2 seconds just to filter them a
 
 <img width="1138" height="893" alt="bench2" src="https://github.com/user-attachments/assets/644db764-425e-4a70-97b3-1b649ca9864f" />
 <img width="1133" height="772" alt="bench1" src="https://github.com/user-attachments/assets/6dca9160-e0ed-4c04-bcb2-8ea519a7f27d" />
+
+
 
 
 ## Project Status
