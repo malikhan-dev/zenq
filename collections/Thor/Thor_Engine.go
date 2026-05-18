@@ -1,8 +1,8 @@
 package Thor
 
 import (
-	"github.com/malikhan-dev/lingo/collections"
-	"github.com/malikhan-dev/lingo/contracts"
+	"github.com/malikhan-dev/zenq/collections"
+	"github.com/malikhan-dev/zenq/contracts"
 )
 
 // Hi My Name Is Thor. Im The Collections Query Engine Of Lingo
