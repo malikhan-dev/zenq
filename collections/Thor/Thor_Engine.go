@@ -1,8 +1,8 @@
 package Thor
 
 import (
-	"github.com/malikhan-dev/zenq/collections"
-	"github.com/malikhan-dev/zenq/contracts"
+	"github.com/malikhan-dev/lingo/collections"
+	"github.com/malikhan-dev/lingo/contracts"
 )
 
 // Hi My Name Is Thor. Im The Collections Query Engine Of Lingo
@@ -105,6 +105,28 @@ func (op *AssertCompiledQueryable[T]) Assert() bool {
 	return Any
 }
 
+func CoreFilter[T any](Operator contracts.LingoOperator[T], item T) bool {
+
+	ShouldKeep := true
+
+	switch Operator.OperatorType {
+
+	case FromItems:
+		if !Operator.MetaData.Function(item) {
+			ShouldKeep = false
+			break
+		}
+
+	case WhereCollection:
+		if !Operator.MetaData.Function(item) {
+			ShouldKeep = false
+			break
+		}
+
+	}
+	return ShouldKeep
+}
+
 func (op *CollectionCompiledQueryable[T]) Collect() []T {
 
 	var result []T
@@ -117,22 +139,11 @@ func (op *CollectionCompiledQueryable[T]) Collect() []T {
 
 		for _, op := range op.Queryable.Operators {
 
-			switch op.OperatorType {
+			keep = CoreFilter(op, item)
 
-			case FromItems:
-				if !op.MetaData.Function(item) {
-					keep = false
-					break
-				}
-
-			case WhereCollection:
-				if !op.MetaData.Function(item) {
-					keep = false
-					break
-				}
-
+			if !keep {
+				break
 			}
-
 		}
 
 		if keep {
@@ -159,43 +170,16 @@ func Collect[K comparable, T any](op *GroupCompiledQueryable[K, T]) *collections
 
 		for _, operator := range op.Queryable.Operators {
 
-			switch operator.OperatorType {
+			keep = CoreFilter(operator, item)
 
-			case FromItems:
-				if !operator.MetaData.Function(item) {
-					keep = false
-					break
-				}
-
-			case WhereCollection:
-				if !operator.MetaData.Function(item) {
-					keep = false
-					break
-				}
+			if !keep {
+				break
 			}
 		}
 
 		if !keep {
 			continue
 		}
-		/*
-			v := reflect.ValueOf(item)
-
-			if v.Kind() == reflect.Ptr {
-				v = v.Elem()
-			}
-
-			field := v.FieldByIndex(targetField.Index)
-
-			if !field.IsValid() {
-				continue
-			}
-
-			key, ok := field.Interface().(K)
-
-			if !ok {
-				continue
-			}*/
 
 		result.Items[LocatedKey] = append(result.Items[LocatedKey], item)
 	}
