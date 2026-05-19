@@ -93,3 +93,19 @@ func Throttle[T any](ctx context.Context, in <-chan T, duration time.Duration) <
 
 	return out
 }
+
+func TakeAll[T any](ctx context.Context, in <-chan T) []T {
+	var result []T
+
+	for {
+		select {
+		case <-ctx.Done():
+			return result
+		case v, ok := <-in:
+			if !ok {
+				return result
+			}
+			result = append(result, v)
+		}
+	}
+}
