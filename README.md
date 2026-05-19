@@ -278,11 +278,18 @@ collections "github.com/malikhan-dev/zenq/collections/Thor"
 ```
 
 ### Core Concepts:
-1. **`CollectionCompiledQueryable[T]`**: After each chain of operation, we use this type as a contract (much like `Queryable` in the default collections API).
-2. **`AssertCompiledQueryable[T]`**: In our query chains, if we want to assert the result like the `Any()` operator, this is the output type.
-3. **`GroupCompiledQueryable[K, T]`**: After a grouping operation, the returning type is `GroupCompiledQueryable`.
+
+**`CollectionCompiledQueryable[T]`**: After each chain of operation, we use this type as a contract (much like `Queryable` in the default collections API).
+
+   
+**`AssertCompiledQueryable[T]`**: In our query chains, if we want to assert the result like the `Any()` operator, this is the output type.
+
+
+**`GroupCompiledQueryable[K, T]`**: After a grouping operation, the returning type is `GroupCompiledQueryable`.
+
 
 All three types nest `CompiledQueryable[T]` inside them. `CompiledQueryable` represents the result of the operation in the `Items` property and the list of operators.
+
 
 ``` go
 type CompiledQueryable[T any] struct {
@@ -293,9 +300,15 @@ type CompiledQueryable[T any] struct {
 
 Thor Engine APIs are as follows:
 
-- **`From[T any]`**: Accepts a slice of `[]T` and returns a `*CollectionCompiledQueryable[T]` to initiate a query chain.
-- **`Where[T any]`**: Accepts a function `func(T) bool` as an argument, filters the collection, and returns a `*CollectionCompiledQueryable[T]`.
-- **`Collect()`**: Collects the result and returns the `CollectionCompiledQueryable[T]` which holds the data.
+**`From[T any]`**: Accepts a slice of `[]T` and returns a `*CollectionCompiledQueryable[T]` to initiate a query chain.
+
+  
+**`Where[T any]`**: Accepts a function `func(T) bool` as an argument, filters the collection, and returns a `*CollectionCompiledQueryable[T]`.
+
+  
+**`Collect()`**: Collects the result and returns the `CollectionCompiledQueryable[T]` which holds the data.
+
+  
 
 **Example:**
 
@@ -313,7 +326,7 @@ if result2 {
 }
 ```
 
-- **`Group` and `Collect`**: The `Group` function expects a `CompiledQueryable[T]` as an argument and a Key Selector function. For collecting the result of a group, we can use the `collections.Collect()` function.
+**`Group` and `Collect`**: The `Group` function expects a `CompiledQueryable[T]` as an argument and a Key Selector function. For collecting the result of a group, we can use the `collections.Collect()` function.
 
 A grouping example: filtering users whose age is greater than 20 and grouping them by their presence:
 
@@ -334,7 +347,8 @@ fmt.Println(res.Items[true][1])
 
 ```
 
-- **`Assert()`**: Asserts the collection on a given criteria.
+
+**`Assert()`**: Asserts the collection on a given criteria.
 
 ``` go
 result2 := collections.From(result).Any(func(search ComplexObjectToSearch) bool {
