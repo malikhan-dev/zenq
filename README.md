@@ -1,6 +1,4 @@
-# Zen-Q
-
-# Zen-Q
+# Zen-Q (zenq)
 
 **Expressive data querying for Go — Streaming Capabilities — Fast Collection Processing, Flexible Design.**
 ```go
