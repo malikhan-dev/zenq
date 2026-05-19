@@ -2,6 +2,34 @@
 
 **Expressive data querying for Go — Streaming Capabilities — Fast Collection Processing, Flexible Design.**
 
+``` go
+ctx, cancel := context.WithCancel(context.Background())
+‌
+defer cancel()
+‌
+res :=
+    collections.Collect(collections.Group[int, customer](
+     collections.From(
+       streams.TakeAll[customer](ctx,
+         streams.FilterStream(ctx, 5,
+          streams.FromCsv(ctx, 256,"customers-100.csv", func(row []string) (customer, error) {
+           index, err := strconv.Atoi(row[0])
+           if err != nil {
+             index = 0
+            }
+     return customer{CustomerId:row[1], Index: index, FirstName: row[2],LastName: row[3], Company: row[4], City: row[5], Country: row[6],Phone1: row[7],Phone2: row[8], Email:  row[9], SubscriptionDate:row[10], Website: row[11] }, err
+}),
+
+func(customer customer) bool {
+     return customer.Index > 0
+}))),
+
+func(c customer) int {
+     return c.Index
+},))
+
+
+```
 ### GitHub Achievements
 
 [![Starstruck](https://img.shields.io/badge/GitHub-Starstruck-yellow?style=for-the-badge&logo=github)](https://github.com/users/malikhan-dev/achievements/starstruck)
