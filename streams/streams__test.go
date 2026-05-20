@@ -443,3 +443,60 @@ func TestStreamFromCsv3(t *testing.T) {
 	}
 
 }
+
+func TestStreamFromCsv4(t *testing.T) {
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	defer cancel()
+
+	var CsvStreamConfig contracts.CsvStreamConf[customer]
+
+	CsvStreamConfig.StreamHeaders = false
+
+	CsvStreamConfig.FilePath = "../customers-100.csv"
+
+	CsvStreamConfig.BufferSize = 8
+
+	CsvStreamConfig.ItemCount = 8
+
+	CsvStreamConfig.ParseErrorCallback = func(err error, i int) {
+
+		fmt.Println(err, " at", i)
+
+		if i > 0 {
+			cancel()
+		}
+	}
+
+	CsvStreamConfig.Parser = func(row []string) (customer, error) {
+		index, err := strconv.Atoi(row[0])
+		return customer{
+			CustomerId:       row[1],
+			Index:            index,
+			FirstName:        row[2],
+			LastName:         row[3],
+			Company:          row[4],
+			City:             row[5],
+			Country:          row[6],
+			Phone1:           row[7],
+			Phone2:           row[8],
+			Email:            row[9],
+			SubscriptionDate: row[10],
+			Website:          row[11],
+		}, err
+	}
+
+	res :=
+		TakeAll[customer](ctx,
+			FilterStream(ctx, CsvStreamConfig.BufferSize,
+				FromCsv(ctx, CsvStreamConfig), func(customer customer) bool {
+					return customer.Index > 0
+				}))
+
+	for _, v := range res {
+		fmt.Println(v)
+
+	}
+
+}
