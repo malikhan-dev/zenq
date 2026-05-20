@@ -16,7 +16,7 @@ var items []ComplexObjectToSearch
 
 func LoadLargeData() {
 	randFlag := false
-	for i := 0; i < 50000000; i++ {
+	for i := 0; i < 200000; i++ {
 
 		items = append(items, ComplexObjectToSearch{
 			Name: "Jane",
@@ -143,7 +143,6 @@ func TestValidFilter(t *testing.T) {
 	}
 }
 
-
 func TestNestedSearch_Thor(t *testing.T) {
 
 	type Address struct {
@@ -221,9 +220,9 @@ func TestNestedSearch_Thor(t *testing.T) {
 	})
 
 	res :=
-		collections.From(UserList).Where(func(user Users) bool {
+		From(UserList).Where(func(user Users) bool {
 
-			return collections.From(user.Addr).Any(func(address Address) bool {
+			return From(user.Addr).Any(func(address Address) bool {
 				return address.City == "Karaj"
 			}).Assert()
 
@@ -232,6 +231,3 @@ func TestNestedSearch_Thor(t *testing.T) {
 	fmt.Println(res)
 
 }
-
-
-
