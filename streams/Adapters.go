@@ -94,24 +94,30 @@ func FromCsv[T any](ctx context.Context, Conf contracts.CsvStreamConf[T]) <-chan
 					continue
 				}
 
-			}
-
-			row, err := reader.Read()
-
-			if err == io.EOF {
-				break
-			}
-
-			v, err := Conf.Parser(row)
-
-			if err == nil {
-				out <- v
 			} else {
-				Conf.ParseErrorCallback(err, rowCounter)
+				rowCounter++
+
+				row, err := reader.Read()
+
+				if err == io.EOF {
+					break
+				}
+
+				v, err := Conf.Parser(row)
+
+				if err == nil {
+					out <- v
+				} else {
+					Conf.ParseErrorCallback(err, rowCounter)
+				}
+			}
+
+			if Conf.ItemCount > 0 && rowCounter == Conf.ItemCount+1 {
+				break
+
 			}
 
 		}
-
 	}
 
 	return out
