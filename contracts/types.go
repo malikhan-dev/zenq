@@ -39,4 +39,6 @@ type CsvStreamConf[T any] struct {
 	BufferSize int
 
 	ParseErrorCallback func(error, int)
+
+	ItemCount int
 }
