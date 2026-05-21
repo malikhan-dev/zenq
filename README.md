@@ -647,6 +647,103 @@ imagine we have a csv file with the following structure. the first 3 rows have w
 
 Here's How:
 
+
+first we define the data type
+
+
+``` go
+type customer struct {
+		Index            int
+		CustomerId       string
+		FirstName        string
+		LastName         string
+		Company          string
+		City             string
+		Country          string
+		Phone1           string
+		Phone2           string
+		Email            string
+		SubscriptionDate string
+		Website          string
+	}
+
+```
+
+then its time to configure the streaming options. simply create an instance of CsvStreamConf[Customer]. its important to pass along sufficient amount for the buffer size. since we expect the three first rows are corrupted then we configure our Error Callback in a way that if any other errors occures, we signal the stream to stop.
+
+
+```
+
+    ctx, cancel := context.WithCancel(context.Background())
+
+    defer cancel()
+
+    var CsvStreamConfig contracts.CsvStreamConf[customer]  //define the stream config
+
+	CsvStreamConfig.StreamHeaders = false
+
+	CsvStreamConfig.FilePath = "customers-100.csv"
+
+	CsvStreamConfig.BufferSize = 256
+
+	CsvStreamConfig.ParseErrorCallback = func(err error, i int) {
+
+		fmt.Println(err, " at", i)
+
+		if i > 3 {    // we expect that the first 3 rows have problems and if we have error on other records we want to cancel
+			cancel()
+		}
+	}
+
+	CsvStreamConfig.Parser = func(row []string) (customer, error) {
+		index, err := strconv.Atoi(row[0])
+		return customer{
+			CustomerId:       row[1],
+			Index:            index,
+			FirstName:        row[2],
+			LastName:         row[3],
+			Company:          row[4],
+			City:             row[5],
+			Country:          row[6],
+			Phone1:           row[7],
+			Phone2:           row[8],
+			Email:            row[9],
+			SubscriptionDate: row[10],
+			Website:          row[11],
+		}, err
+	}
+
+
+```
+
+
+then its time to design our pipelines. we plugin the csv adapter (FromCsv) then we passed it to the filter pipeline so that we can have all the customers that their index field is bigger than 60. then we collect them using TakeAll, then we Convert it to the thor queryable by calling From and then Group Function Of the Thor engine with its key selector function and finally we collect the result of the group. 
+
+
+```
+
+
+	res :=
+		collections.Collect(collections.Group[int, customer](
+			collections.From(
+				streams.TakeAll[customer](ctx,
+					streams.FilterStream(ctx, CsvStreamConfig.BufferSize,
+						streams.FromCsv(ctx, CsvStreamConfig), func(customer customer) bool {
+							return customer.Index > 60
+						}))),
+
+			func(c customer) int {
+				return c.Index
+			},
+		))
+
+
+```
+
+
+all together this is the final statements
+
+
 ``` go
 
 	type customer struct {
