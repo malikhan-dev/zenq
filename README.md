@@ -50,17 +50,17 @@ defer cancel()
 count := 0
 buffer_size := 10
 
-for v := range streams.Throttle(ctx, streams.FilterStream(ctx, buffer_size, streams.FromData(ctx, buffer_size, items), func(item ComplexObjectToSearch) bool {
-    return item.Id > 2
-}), 0) {
-    fmt.Println(v)
-    count++
+for v := range FromData[ComplexObjectToSearch](ctx, items).FilterStream(func(search ComplexObjectToSearch) bool {
+ 	return search.Id > 2
+	}).TakeAll() {
 
-    if count == 100000 {
-        cancel()
-        break
-    }
-}
+		fmt.Println(v)
+		count++
+		if count == 100000 {
+			cancel()
+			break
+		}
+	}
 ```
 
 ``` go
@@ -84,13 +84,6 @@ collections.Collect(
 collections.From(items).Where("Name", "John").Where("Flag", true).First().Collect()
 ```
 
-zenq supports two querying styles:
-- **Dynamic field-based querying** for flexible runtime searches.
-- **Type-safe predicate-based querying** for safer and more explicit logic.
-
-Whether you want convenience, readability, or performance, zenq gives you a clean way to work with data.
-
----
 
 ## Installation
 
@@ -626,7 +619,7 @@ then its time to configure the streaming options. simply create an instance of C
 
 		fmt.Println(err, " at", i)
 
-		if i > 3 {    // we expect that the first 3 rows have problems and if we have error on other records we want to cancel
+		if i > 4 {  // we expect that the first 3 rows have problems and if we have error on other records we want to cancel, please note that headernames is the 1 row
 			cancel()
 		}
 	}
@@ -764,7 +757,7 @@ for k, v := range TCollection.Collect(grouped).Items {
 
 
 # Compiled Streams
-the main difference between streams and compiled streams is that the compiled streams starts the streaming from a single execution unit. while the streams pass around the data after each pipelines. in the following example we initiate a compilable stream using the method CompileFromQueryable, which accepts a slice, then we used filter pipeline to filter it, after that we called CompileStream which is our execution unit, we can remove the throttle pipeline if we dont need any delays.
+the main difference between streams and compiled streams is that the compiled streams starts the streaming from a single execution unit. while the streams pass around the data after each pipelines. in the following example we initiate a compilable stream using the method CompileFromQueryable, which accepts a slice, then we used filter pipeline to filter it, after that we called CompileStream which is our execution unit, we can remove the throttle pipeline if we dont need any delays. please note that this section is an experimental part of the project.
 
 ``` go
 
