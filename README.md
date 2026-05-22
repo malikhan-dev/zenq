@@ -65,7 +65,7 @@ for v := range FromData[ComplexObjectToSearch](ctx, items).FilterStream(func(sea
 
 ``` go
 // Grouping Collections using the Thor engine
-collections.Collect(
+
     collections.Group[bool, ComplexObjectToSearch](
         collections.From(items).Where(func(search ComplexObjectToSearch) bool {
             return search.Age > 20
@@ -73,9 +73,7 @@ collections.Collect(
         func(item ComplexObjectToSearch) bool {
             return item.Flag
         },
-    ),
-)
-// Took around 3.8 seconds to filter and group a slice of 50,000,000 items
+    ).Collect()
 
 ```
 
@@ -339,7 +337,7 @@ if result2 {
 A grouping example: filtering users whose age is greater than 20 and grouping them by their presence:
 
 ``` go
-res := collections.Collect(
+res := 
     collections.Group[bool, ComplexObjectToSearch](
         collections.From(items).Where(func(search ComplexObjectToSearch) bool {
             return search.Age > 20
@@ -347,8 +345,8 @@ res := collections.Collect(
         func(item ComplexObjectToSearch) bool {
             return item.Flag
         },
-    ),
-)
+    ).Collect()
+
 
 fmt.Println(res.Items[false][1])
 fmt.Println(res.Items[true][1])
@@ -656,12 +654,12 @@ data := FromCsv(ctx, CsvStreamConfig).FilterStream(func(c customer) bool {
 	}).TakeAll()
 
 
-grouped := TCollection.Group[int, customer](TCollection.From(data), func(t customer) int {
+GroupCollection := TCollection.Group[int, customer](TCollection.From(data), func(t customer) int {
 		return t.Index
-	})
+	}).Collect()
 
 
-for k, v := range TCollection.Collect(grouped).Items {
+for k, v := range GroupCollection.Items {
 		fmt.Println(k)
 		fmt.Println(v)
 	}
@@ -734,12 +732,12 @@ data := FromCsv(ctx, CsvStreamConfig).FilterStream(func(c customer) bool {
 	}).TakeAll()
 
 
-grouped := TCollection.Group[int, customer](TCollection.From(data), func(t customer) int {
+GroupCollection := TCollection.Group[int, customer](TCollection.From(data), func(t customer) int {
 		return t.Index
-	})
+	}).Collect()
 
 
-for k, v := range TCollection.Collect(grouped).Items {
+for k, v := range GroupCollection.Items {
 		fmt.Println(k)
 		fmt.Println(v)
 	}
