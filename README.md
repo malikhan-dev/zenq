@@ -414,27 +414,14 @@ streams  "github.com/malikhan-dev/zenq/streams"
 ```
 
 
-## FromQueryable
-
-Creates a stream from a `Queryable`.
-
-**Args:**
-1. A context to manage cancellation.
-2. A buffer size of type `int`.
-3. A queryable.
-
-It returns a channel of the generic type `T`.
-
 ## FromData
 
 Creates a stream from in-memory data.
 
 **Args:**
 1. A context to manage cancellation.
-2. A buffer size of type `int`.
-3. A slice of objects.
-
-It returns a channel of the generic type `T`.
+2. A slice of objects.
+   
 
 ## FromChannel
 
@@ -442,11 +429,7 @@ Creates a stream from an existing Go channel.
 
 **Args:**
 1. A context to manage cancellation.
-2. A buffer size of type `int`.
-3. A read channel of `T`.
-
-It returns a channel of the generic type `T`.
-
+2. A read channel of `T`.
 
 
 ## FromCsv
@@ -483,7 +466,7 @@ Creates a stream from a specific csv file. can perform filters on the stream of 
   
   3- A FilePath of the csv file
   
-  4 - A BufferSize. recommended atleast 128.
+  4 - A BufferSize. ** DEPRECATED**
   
   5 - A callback for when the parser cant parse the row and an error occures, other rows will be streamed though.
   
@@ -499,23 +482,15 @@ Once a stream is created, it can be processed using different pipeline stages.
 Works similarly to `Where()` or `Filter()`, but operates on streamed data.
 
 **Args:**
-1. A context to manage cancellation.
-2. A buffer size of type `int`.
-3. A read channel of `T`.
-4. A function to filter the stream of data (`predicate func(T) bool`).
+1. A function to filter the stream of data (`predicate func(T) bool`).
 
-It returns a channel of the generic type `T`.
 
 ## Throttle
 
 Adds a delay between streamed items.
 
 **Args:**
-1. A context to manage cancellation.
-2. A read channel of `T`.
-3. A duration (waiting time in milliseconds).
-
-It returns a channel of the generic type `T`.
+1. duration time.Duration.
 
 **Important:**
 - Use e.g., `100 * time.Millisecond`.
@@ -534,91 +509,55 @@ It returns a channel of `M`.
 
 ---
 
-# Example Of Streams
 
 Streams respect `context.Context` cancellation to:
 - Prevent goroutine leaks.
 - Support early termination.
 - Properly manage pipeline lifecycle.
 
+
+# Example Of Streams
+
+Process a Stream From Data
+
 ``` go
-// Process a Stream From Queryable
 
 ctx, cancel := context.WithCancel(context.Background())
 defer cancel()
 
-queryable := zenq.From(items)
 
-mappedStream := streams.MapStream[ComplexObjectToSearch, SimplerType](ctx,
-    streams.Throttle(ctx,
-        streams.FilterStream(ctx, buffer_size,
-            streams.FromQueryable[ComplexObjectToSearch](ctx, buffer_size, *queryable),
-            func(item ComplexObjectToSearch) bool {
-                return item.Id > 0
-            }), 0), 
-    func(search ComplexObjectToSearch) SimplerType {
-        return SimplerType{
-            Enabled: search.Flag,
-            Id:      search.Id,
-            Name:    search.Name,
-        }
-    })
+for v := range FromData[ComplexObjectToSearch](ctx, items).FilterStream(func(search ComplexObjectToSearch) bool {
+	return search.Id > 2
+}).Throttle(0).Channel {
 
-for v := range mappedStream {
-    // Process stream items
 }
+
+
 ```
 
-``` go
-// Process a Stream From Data
-
-ctx, cancel := context.WithCancel(context.Background())
-defer cancel()
-
-mappedStream := streams.MapStream[ComplexObjectToSearch, SimplerType](ctx,
-    streams.Throttle(ctx,
-        streams.FilterStream(ctx, buffer_size,
-            streams.FromData[ComplexObjectToSearch](ctx, buffer_size, items),
-            func(item ComplexObjectToSearch) bool {
-                return item.Id > 0
-            }), 0), 
-    func(search ComplexObjectToSearch) SimplerType {
-        return SimplerType{
-            Enabled: search.Flag,
-            Id:      search.Id,
-            Name:    search.Name,
-        }
-    })
-
-for v := range mappedStream {
-    // Process stream items
-}
-```
+process stream from a channel
 
 ``` go
-// Process a Stream From A Channel
 
-ctx, cancel := context.WithCancel(context.Background())
-defer cancel()
 
-mappedStream := streams.MapStream[ComplexObjectToSearch, SimplerType](ctx,
-    streams.Throttle(ctx,
-        streams.FilterStream(ctx, buffer_size,
-            streams.FromChannel[ComplexObjectToSearch](ctx, buffer_size, myChannel),
-            func(item ComplexObjectToSearch) bool {
-                return item.Id > 0
-            }), 0), 
-    func(search ComplexObjectToSearch) SimplerType {
-        return SimplerType{
-            Enabled: search.Flag,
-            Id:      search.Id,
-            Name:    search.Name,
-        }
-    })
+	channel := make(chan ComplexObjectToSearch, buffer_size)
 
-for v := range mappedStream {
-    // Process stream items
-}
+	go func() {
+		for i := 0; i < 100; i++ {
+			channel <- ComplexObjectToSearch{
+				Name: "Jack",
+				Flag: true,
+				Id:   i,
+				Age:  i,
+			}
+		}
+		close(channel)
+	}()
+
+	for v := range FromChannel[ComplexObjectToSearch](ctx, channel).FilterStream(func(complex ComplexObjectToSearch) bool {
+		return complex.Id > 2
+	}).Throttle(time.Millisecond * 500).Channel {
+
 
 ```
 
@@ -713,26 +652,25 @@ then its time to configure the streaming options. simply create an instance of C
 ```
 
 
-then its time to design our pipelines. we plugin the csv adapter (FromCsv) then we passed it to the filter pipeline so that we can have all the customers that their index field is bigger than 60. then we collect them using TakeAll, then we Convert it to the thor queryable by calling From and then Group Function Of the Thor engine with its key selector function and finally we collect the result of the group. 
+then its time to design our pipelines. we plugin the csv adapter (FromCsv) then we call the filter pipeline so that we can have all the customers that their index field is bigger than 60. then we call TakeAll(), the result is now compatible for the thor engine to start grouping by passing the data to group function. and finally we collect the grouping result. 
 
 
 ```
 
+data := FromCsv(ctx, CsvStreamConfig).FilterStream(func(c customer) bool {
+		return c.Index > 0
+	}).TakeAll()
 
-	res :=
-		collections.Collect(collections.Group[int, customer](
-			collections.From(
-				streams.TakeAll[customer](ctx,
-					streams.FilterStream(ctx, CsvStreamConfig.BufferSize,
-						streams.FromCsv(ctx, CsvStreamConfig), func(customer customer) bool {
-							return customer.Index > 60
-						}))),
 
-			func(c customer) int {
-				return c.Index
-			},
-		))
+grouped := TCollection.Group[int, customer](TCollection.From(data), func(t customer) int {
+		return t.Index
+	})
 
+
+for k, v := range TCollection.Collect(grouped).Items {
+		fmt.Println(k)
+		fmt.Println(v)
+	}
 
 ```
 
@@ -796,24 +734,20 @@ all together this is the final statements
 		}, err
 	}
 
-	res :=
-		collections.Collect(collections.Group[int, customer](
-			collections.From(
-				streams.TakeAll[customer](ctx,
-					streams.FilterStream(ctx, CsvStreamConfig.BufferSize,
-						streams.FromCsv(ctx, CsvStreamConfig), func(customer customer) bool {
-							return customer.Index > 60
-						}))),
 
-			func(c customer) int {
-				return c.Index
-			},
-		))
+data := FromCsv(ctx, CsvStreamConfig).FilterStream(func(c customer) bool {
+		return c.Index > 0
+	}).TakeAll()
 
-	for k, v := range res.Items {
+
+grouped := TCollection.Group[int, customer](TCollection.From(data), func(t customer) int {
+		return t.Index
+	})
+
+
+for k, v := range TCollection.Collect(grouped).Items {
 		fmt.Println(k)
 		fmt.Println(v)
-	
 	}
 
 
