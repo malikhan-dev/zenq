@@ -556,7 +556,11 @@ process stream from a channel
 
 ## A Real‑World Example of Querying CSV Files
 
-### imagine we have a csv file with the following structure. the first 3 rows have wrong values for Index, cause it should be an int, like other rows. our goal is to read the entire csv files, and then have a groupped slice based on the index field (a map[k][T]). we also need to filter the rows that their index field is greater than 60. we want to collect streams then use the thor engine to group the objects. if any other errors occures besides those 3 first rows, the operation must be stopped.
+imagine we have a csv file with the following structure. the first 3 rows have wrong values for Index, cause it should be an int, like other rows. 
+
+our goal is to read the entire csv file, and then have a groupped object based on the index field (a map[k][T]).
+
+we also need to filter the rows that their index field is greater than 60. we want to collect streams then use the thor engine to group the objects. if any other errors occures besides those 3 first rows, the operation must be stopped.
 
 
 
