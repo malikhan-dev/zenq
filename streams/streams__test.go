@@ -444,3 +444,62 @@ func TestStreamFromCsv6(t *testing.T) {
 		fmt.Println(v)
 	}
 }
+
+func TestStreamFromCsv7(t *testing.T) {
+
+	type UserDTO struct {
+		ID       int    `json:"id" csv:"id"`
+		Name     string `json:"name" csv:"name"`
+		Age      int    `json:"age" csv:"age"`
+		Email    string `json:"email" csv:"email"`
+		IsActive bool   `json:"is_active" csv:"is_active"`
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	defer cancel()
+
+	var CsvStreamConfig contracts.CsvStreamConf[UserDTO]
+
+	CsvStreamConfig.StreamHeaders = false
+
+	CsvStreamConfig.FilePath = "users_data2.csv"
+
+	CsvStreamConfig.BufferSize = 256
+
+	CsvStreamConfig.ParseErrorCallback = func(err error, i int) {
+
+		fmt.Println(err, " at", i)
+
+		if i > 1 {
+			cancel()
+		}
+	}
+
+	CsvStreamConfig.Parser = func(row []string) (UserDTO, error) {
+
+		index, err := strconv.Atoi(row[0])
+
+		age, err := strconv.Atoi(row[2])
+
+		active, err := strconv.ParseBool(row[4])
+
+		return UserDTO{
+			ID:       index,
+			Name:     row[1],
+			Age:      age,
+			Email:    row[3],
+			IsActive: active,
+		}, err
+	}
+
+	data := FromCsv(ctx, CsvStreamConfig).FilterStream(func(c UserDTO) bool {
+		return c.ID > 0
+	}).Channel
+
+	for v := range data {
+
+		fmt.Println(" value: ", v)
+	}
+
+}
