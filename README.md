@@ -10,8 +10,8 @@
 
 # Zen-Q (zenq)
 
-**Expressive, Polymorphic Queries with Streaming Capabilities and a User-Friendly API**
-
+**Expressive, Polymorphic Queries with Streaming Capabilities and a User-Friendly API, inspired by LINQ.** 
+ 
 ```go
 
 	ctx, cancel := context.WithCancel(context.Background())
