@@ -30,20 +30,20 @@
 
 
 
-  var jsonStreamConfig contracts.JsonStreamConf
+   var jsonStreamConfig contracts.JsonStreamConf
 
-  jsonStreamConfig.FilePath = "users_data.json"
+   jsonStreamConfig.FilePath = "users_data.json"
 
 
-  JsonData := FromJsonArr[User](ctx, jsonStreamConfig.StreamConf).FilterStream(func(c User) bool {
+   JsonData := FromJsonArr[User](ctx, jsonStreamConfig.StreamConf).FilterStream(func(c User) bool {
 		return c.ID > 0
 	})
 
 
-for v := range data.Channel {
+  for v := range JsonData.Channel {
 		time.Sleep(time.Millisecond * 10)
 		fmt.Println(" value: ", v)
-	}
+  }
 
 ‌
 ```
