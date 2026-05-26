@@ -52,7 +52,7 @@ func (currStr Streamable[T]) FilterStream(Filter func(T) bool) Streamable[T] {
 		Context:    currStr.Context,
 		Channel:    filterStream[T](currStr.Context, currStr.BufferSize, currStr.Channel, Filter),
 		BufferSize: currStr.BufferSize,
-		err:        currStr.err,
+		err:        currStr.Err,
 	}
 }
 
