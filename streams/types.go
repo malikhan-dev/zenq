@@ -6,6 +6,6 @@ type Streamable[T any] struct {
 	Channel    <-chan T
 	Context    context.Context
 	BufferSize int
-	err        []error
+	Err        []error
 	Initiated  bool
 }

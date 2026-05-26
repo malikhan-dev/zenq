@@ -233,7 +233,7 @@ func TestStreamFromCsv(t *testing.T) {
 			fmt.Println(" value: ", v)
 		}
 	} else {
-		fmt.Println(stream.err)
+		fmt.Println(stream.Err)
 	}
 
 }
@@ -297,7 +297,7 @@ func TestJsonInitiation(t *testing.T) {
 	if stream := FromJsonArr[User](ctx, jsonStreamConfig.StreamConf); stream.Initiated {
 		t.Error("stream should not be initiated")
 	} else {
-		fmt.Println(stream.err)
+		fmt.Println(stream.Err)
 	}
 }
 
@@ -329,6 +329,7 @@ func TestCsvInitiation(t *testing.T) {
 	if stream := FromCsv[User](ctx, CsvStreamConfig); stream.Initiated {
 		t.Error("stream should not be initiated")
 	} else {
-		fmt.Println(stream.err)
+		fmt.Println(stream.Err)
 	}
 }
+
