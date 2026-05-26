@@ -17,6 +17,13 @@ type ComplexObjectToSearch struct {
 	Flag bool
 }
 
+type User struct {
+	ID        int    `json:"id"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	IsActive  bool   `json:"is_active"`
+	CreatedAt string `json:"created_at"`
+}
 type customer struct {
 	Index            int
 	CustomerId       string
@@ -121,7 +128,7 @@ func TestStreamsFromChannel(t *testing.T) {
 
 	var buffer_size int
 
-	buffer_size = 10
+	buffer_size = 256
 
 	channel := make(chan ComplexObjectToSearch, buffer_size)
 
@@ -134,18 +141,19 @@ func TestStreamsFromChannel(t *testing.T) {
 				Age:  i,
 			}
 		}
-		close(channel)
+		defer close(channel)
+
 	}()
 
 	for v := range FromChannel[ComplexObjectToSearch](ctx, channel).FilterStream(func(complex ComplexObjectToSearch) bool {
 		return complex.Id > 2
-	}).Throttle(time.Millisecond * 500).TakeAll() {
+	}).TakeAll() {
 
 		fmt.Println(v)
 
 		count++
 
-		if count == 10 {
+		if count == 80 {
 			cancel()
 			break
 		}
@@ -215,25 +223,22 @@ func TestStreamFromCsv(t *testing.T) {
 		}, errorList
 	}
 
-	data := FromCsv(ctx, CsvStreamConfig).FilterStream(func(c UserDTO) bool {
-		return c.ID > 0
-	}).Channel
+	if stream := FromCsv(ctx, CsvStreamConfig); stream.Initiated {
 
-	for v := range data {
-		fmt.Println(" value: ", v)
+		data := stream.FilterStream(func(c UserDTO) bool {
+			return c.ID > 0
+		}).Channel
+
+		for v := range data {
+			fmt.Println(" value: ", v)
+		}
+	} else {
+		fmt.Println(stream.err)
 	}
 
 }
 
 func TestStreamFromJson1(t *testing.T) {
-
-	type User struct {
-		ID        int    `json:"id"`
-		Username  string `json:"username"`
-		Email     string `json:"email"`
-		IsActive  bool   `json:"is_active"`
-		CreatedAt string `json:"created_at"`
-	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -254,13 +259,76 @@ func TestStreamFromJson1(t *testing.T) {
 		}
 	}
 
-	data := FromJsonArr[User](ctx, jsonStreamConfig.StreamConf).FilterStream(func(c User) bool {
-		return c.ID > 0
-	})
+	if stream := FromJsonArr[User](ctx, jsonStreamConfig.StreamConf); stream.Initiated {
 
-	for v := range data.Channel {
-		time.Sleep(time.Millisecond * 10)
-		fmt.Println(" value: ", v)
+		data := stream.FilterStream(func(c User) bool {
+			return c.ID > 0
+		})
+
+		for v := range data.Channel {
+			time.Sleep(time.Millisecond * 10)
+			fmt.Println(" value: ", v)
+		}
 	}
 
+}
+
+func TestJsonInitiation(t *testing.T) {
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	defer cancel()
+
+	var jsonStreamConfig contracts.JsonStreamConf
+
+	jsonStreamConfig.FilePath = "invalid-file-pathhhhh.json"
+
+	jsonStreamConfig.BufferSize = 256
+
+	jsonStreamConfig.ParseErrorCallback = func(err []error, i int) {
+
+		fmt.Println(err, " at", i)
+
+		if i > 3 {
+			cancel()
+		}
+	}
+
+	if stream := FromJsonArr[User](ctx, jsonStreamConfig.StreamConf); stream.Initiated {
+		t.Error("stream should not be initiated")
+	} else {
+		fmt.Println(stream.err)
+	}
+}
+
+func TestCsvInitiation(t *testing.T) {
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	defer cancel()
+
+	var CsvStreamConfig contracts.CsvStreamConf[User]
+
+	CsvStreamConfig.StreamHeaders = false
+
+	CsvStreamConfig.FilePath = "dummy-file-path.csv"
+
+	CsvStreamConfig.BufferSize = 256
+
+	CsvStreamConfig.ParseErrorCallback = func(err []error, i int) {
+
+		fmt.Println(err, " at", i)
+
+		if i > 3 {
+
+			cancel()
+		}
+
+	}
+
+	if stream := FromCsv[User](ctx, CsvStreamConfig); stream.Initiated {
+		t.Error("stream should not be initiated")
+	} else {
+		fmt.Println(stream.err)
+	}
 }
