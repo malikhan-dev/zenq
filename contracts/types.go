@@ -47,3 +47,8 @@ type CsvStreamConf[T any] struct {
 type JsonStreamConf struct {
 	StreamConf
 }
+
+type DbParam[T any] struct {
+	Name  string
+	Value T
+}
