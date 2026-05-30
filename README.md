@@ -19,23 +19,7 @@
 
 	defer cancel()
 
-	var CsvStreamConfig contracts.CsvStreamConf[customer]
-
-    CsvStreamConfig.StreamHeaders = false
-
-	CsvStreamConfig.FilePath = "users_data2.csv"
-
-	if stream:= streams.FromCsv(ctx, CsvStreamConfig); stream.Initiated{
-
-		CsvData := stream.FilterStream(func(c customer) bool {
-			return c.Index > 0
-		}).TakeAll()
-
-
-	} 
-
 	
-
    var jsonStreamConfig contracts.JsonStreamConf
 
    jsonStreamConfig.FilePath = "users_data.json"
@@ -79,11 +63,8 @@
 
 				/// business logic
 
-
-
 			}
-
-‌
+	‌}
 ```
 
 
