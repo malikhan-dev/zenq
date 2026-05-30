@@ -945,3 +945,17 @@ in a slice of 50,000,000 users it took less than 2 seconds just to filter them a
 zenq is actively evolving, and more operators, examples, and documentation are on the way.
 
 If you find it useful, feel free to star the repository (it motivates us) and follow future updates!
+
+
+IMPORTANT:
+
+Third‑Party Software Notice: This package includes/uses the third‑party MySQL driver go-sql-driver/mysql.
+
+Copyright © The go-sql-driver/mysql authors.
+
+Project page: https://github.com/go-sql-driver/mysql
+
+License applies as stated in that repository.
+
+
+
