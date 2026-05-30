@@ -40,7 +40,7 @@
 
 
 
-		stream :=FromMySqlRows[UserModel](ctx, conn,"select * from Test.users where id>?", func(rows *sql.Rows) (UserModel, error) {
+		stream := FromMySqlRows[UserModel](ctx, conn,"select * from Test.users where id>?", func(rows *sql.Rows) (UserModel, error) {
 
 					var id, age int
 					var name string
